@@ -1,4 +1,4 @@
-module Main where
+module Main exposing (..)
 
 -- MODEL
 
@@ -9,7 +9,7 @@ type alias Model = { }
 
 type Action = Reset
 
-update : Action → Model → Model
+update : Action -> Model -> Model
 update action model =
   case action of
-    Reset → model
+    Reset -> model
