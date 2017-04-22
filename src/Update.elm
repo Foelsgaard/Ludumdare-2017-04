@@ -1,5 +1,7 @@
 module Update exposing (..)
 
+import Vector exposing ((.+), (.-))
+
 import Util exposing (..)
 import Model exposing (..)
 
@@ -35,12 +37,12 @@ updateHelp action model =
 
 updateStick : Time -> List Planet -> Stick -> Stick
 updateStick dt planets stick =
-    let acc = vSum (List.map (gravity stick.pos) planets)
+    let acc = Vector.sum (List.map (gravity stick.pos) planets)
 
-        newVel = stick.vel .+ vScale dt acc
-            |> vClamp (negate maxSpeed) maxSpeed
+        newVel = stick.vel .+ Vector.scale dt acc
+            |> Vector.clamp (negate maxSpeed) maxSpeed
 
-        newPos = stick.pos .+ vScale dt newVel
+        newPos = stick.pos .+ Vector.scale dt newVel
 
         collidesWithPlanet planet =
             checkCollision newPos 5 (planetPos planet) planet.radius
@@ -57,6 +59,7 @@ updateStick dt planets stick =
                { stick
                    | vel = (0, 0)
                    , pos =
-                     let dir = normalize (stick.pos .- planetPos planet)
-                     in vScale (5 + planet.radius) dir .+ planetPos planet
+                     let dir = Vector.normalize (stick.pos .- planetPos planet)
+                     in Vector.scale (5 + planet.radius) dir
+                         .+ planetPos planet
                }

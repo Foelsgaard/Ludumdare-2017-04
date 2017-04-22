@@ -1,5 +1,7 @@
 module Model exposing (..)
 
+import Vector exposing (Vector)
+
 import Time
 
 -- Types
@@ -13,8 +15,6 @@ type alias Stick =
     { pos : Vector
     , vel : Vector
     }
-
-type alias Vector = (Float, Float)
 
 type alias Planet =
     { radius        : Float
