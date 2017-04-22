@@ -11,12 +11,13 @@ import Element
 drawStick : Stick -> Collage.Form
 drawStick stick =
     Collage.filled Color.green (Collage.circle 5)
-        |> Collage.move (stick.pos.x,stick.pos.y)
+                |> Collage.move stick.pos
 
 drawPlanet : Planet -> Collage.Form
 drawPlanet planet =
-    Collage.filled Color.red (Collage.circle planet.radius)
-        |> Collage.move ((planetPos planet).x,(planetPos planet).y)
+    let pos = planetPos planet
+    in Collage.filled Color.red (Collage.circle planet.radius)
+        |> Collage.move pos
 
 view model =
     let entities =

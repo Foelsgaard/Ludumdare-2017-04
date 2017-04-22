@@ -1,5 +1,7 @@
 module Model exposing (..)
 
+import Time
+
 -- Types
 
 type alias Model =
@@ -12,21 +14,19 @@ type alias Stick =
     , vel : Vector
     }
 
-type alias Vector =
-    { x : Float
-    , y : Float
-    }
+type alias Vector = (Float, Float)
 
 type alias Planet =
-    { radius     : Float
-    , mass       : Float
-    , distToStar : Float
-    , angle      : Float
-    , period     : Float
+    { radius        : Float
+    , mass          : Float
+    , orbitalRadius : Float
+    , orbitalAngle  : Float
+    , orbitalPeriod : Float
     }
 
 -- Constants
 
-g = 10000
+g = 0.01
 maxSpeed = 500
 
+pixelsPerSecond = 1 / Time.second

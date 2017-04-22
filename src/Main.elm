@@ -20,25 +20,25 @@ main = Html.program
 
 initialModel =
     { sticks =
-          [ { pos = {x = 0, y = 0}
-            , vel = {x = 0, y = 0}
+          [ { pos = (0, 0)
+            , vel = (0, 0)
             }
-          , { pos = {x = -50, y = -200}
-            , vel = {x = 200, y = 0}
+          , { pos = (-50, -200)
+            , vel = (100 * pixelsPerSecond, 0)
             }
           ]
     , planets =
-          [ { radius     = 20
-            , mass       = 1000
-            , distToStar = 200
-            , angle      = 0
-            , period     = 10
+          [ { radius        = 20
+            , mass          = 1000
+            , orbitalRadius = 200
+            , orbitalAngle  = 0
+            , orbitalPeriod = 10 * Time.second
             }
-          , { radius     = 15
-            , mass       = 500
-            , distToStar = 100
-            , angle      = 3
-            , period     = 4
+          , { radius        = 15
+            , mass          = 500
+            , orbitalRadius = 100
+            , orbitalAngle  = 3
+            , orbitalPeriod = 4 * Time.second
             }
           ]
     }
@@ -46,4 +46,4 @@ initialModel =
 -- SUBSCRIBTIONS
 
 subscriptions model =
-    AnimationFrame.diffs (Time.inSeconds >> Tick)
+    AnimationFrame.diffs Tick

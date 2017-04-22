@@ -6,12 +6,14 @@ import Model exposing (..)
 import Time exposing (Time)
 
 updatePlanet : Time -> Planet -> Planet
-updatePlanet time planet =
-    let newAngle = planet.angle + time * 2 * pi / planet.period
+updatePlanet dt planet =
+    let newOrbitalAngle =
+            planet.orbitalAngle + dt * 2 * pi / planet.orbitalPeriod
     in { planet
-           | angle = if newAngle >= 2 * pi
-                     then newAngle - 2 * pi
-                     else newAngle
+           | orbitalAngle =
+             if newOrbitalAngle >= 2 * pi
+             then newOrbitalAngle - 2 * pi
+             else newOrbitalAngle
        }
 
 type Message = Reset | Tick Time
@@ -25,20 +27,20 @@ updateHelp action model =
   case action of
     Reset -> model
 
-    Tick time ->
+    Tick dt ->
         { model
-            | sticks  = List.map (updateStick time model.planets) model.sticks
-            , planets = List.map (updatePlanet time) model.planets
+            | sticks  = List.map (updateStick dt model.planets) model.sticks
+            , planets = List.map (updatePlanet dt) model.planets
         }
 
 updateStick : Time -> List Planet -> Stick -> Stick
-updateStick time planets stick =
+updateStick dt planets stick =
     let acc = vSum (List.map (gravity stick.pos) planets)
 
-        newVel = stick.vel .+ scale time acc
+        newVel = stick.vel .+ vScale dt acc
             |> vClamp (negate maxSpeed) maxSpeed
 
-        newPos = stick.pos .+ scale time newVel
+        newPos = stick.pos .+ vScale dt newVel
 
         collidesWithPlanet planet =
             checkCollision newPos 5 (planetPos planet) planet.radius
@@ -53,8 +55,8 @@ updateStick time planets stick =
                }
            Just planet ->
                { stick
-                   | vel = {x = 0, y = 0}
+                   | vel = (0, 0)
                    , pos =
                      let dir = normalize (stick.pos .- planetPos planet)
-                     in scale (5 + planet.radius) dir .+ planetPos planet
+                     in vScale (5 + planet.radius) dir .+ planetPos planet
                }

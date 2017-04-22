@@ -4,28 +4,23 @@ import Model exposing (..)
 
 import Time exposing (Time)
 
-origin = {x = 0, y = 0}
-
 gravity : Vector -> Planet -> Vector
 gravity p planet =
     let acc = (g * planet.mass / ((dist (planetPos planet) p)^2))
-    in normalize (planetPos planet .- p) |> scale acc
+    in normalize (planetPos planet .- p) |> vScale acc
 
 dist : Vector -> Vector -> Float
-dist v1 v2 =
-    sqrt ((v1.x - v2.x)^2 + (v1.y - v2.y)^2)
+dist (x1, y1) (x2, y2) = sqrt ((x1 - x2)^2 + (y1 - y2)^2)
 
 normalize : Vector -> Vector
-normalize v =
-    { x = v.x / (dist origin v)
-    , y = v.y / (dist origin v)
-    }
+normalize (x, y) =
+    let d = dist (0,0) (x, y)
+    in vScale (1 / d) (x, y)
 
 planetPos : Planet -> Vector
 planetPos planet =
-    { x = cos planet.angle * planet.distToStar
-    , y = sin planet.angle * planet.distToStar
-    }
+    (cos planet.orbitalAngle, sin planet.orbitalAngle)
+        |> vScale planet.orbitalRadius
 
 checkCollision : Vector -> Float -> Vector -> Float -> Bool
 checkCollision p1 r1 p2 r2 =
@@ -34,30 +29,20 @@ checkCollision p1 r1 p2 r2 =
 find p = List.filter p >> List.head
 
 vAdd : Vector -> Vector -> Vector
-vAdd v1 v2 = { x = v1.x + v2.x
-             , y = v1.y + v2.y
-             }
+vAdd (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
 
 (.+) = vAdd
 
 vSub : Vector -> Vector -> Vector
-vSub v1 v2 = { x = v1.x - v2.x
-             , y = v1.y - v2.y
-             }
+vSub (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
 
 (.-) = vSub
 
-scale : Float -> Vector -> Vector
-scale scalar v =
-    { x = scalar * v.x
-    , y = scalar * v.y
-    }
+vScale : Float -> Vector -> Vector
+vScale scalar (x, y) = (x * scalar, y * scalar)
 
 vSum : List Vector -> Vector
-vSum = List.foldr vAdd origin
+vSum = List.foldr vAdd (0, 0)
 
 vClamp : Float -> Float -> Vector -> Vector
-vClamp low high {x, y} =
-    { x = clamp low high x
-    , y = clamp low high y
-    }
+vClamp low high (x, y) = (clamp low high x, clamp low high y)
