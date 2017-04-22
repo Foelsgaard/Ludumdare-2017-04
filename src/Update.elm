@@ -54,5 +54,7 @@ updateStick time planets stick =
            Just planet ->
                { stick
                    | vel = {x = 0, y = 0}
-                   , pos = planetPos planet
+                   , pos =
+                     let dir = normalize (stick.pos .- planetPos planet)
+                     in scale (5 + planet.radius) dir .+ planetPos planet
                }
