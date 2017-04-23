@@ -5,6 +5,7 @@ import Vector exposing (Vector, Point)
 import Time exposing (Time)
 import Collage
 import Dict exposing (Dict)
+import Random exposing (Generator)
 
 -- Types
 
@@ -14,6 +15,8 @@ type alias Model =
     , planets : List Planet
     , score : Int
     , deltaScore : Int
+    , seed : Random.Seed
+    , untilPop : Time
     }
 
 type alias Key = Int
@@ -51,7 +54,7 @@ maxSpeed = 50000 * pixelsPerSecond
 
 pixelsPerSecond = 1 / Time.second
 
-particleMaxLifetime = 5 
+particleMaxLifetime = 5
 
 scoreboardPos = (-400,465)
 scoreboardSpacing = (0,15)

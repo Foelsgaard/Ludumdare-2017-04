@@ -11,7 +11,10 @@ import Dict exposing (Dict)
 import Collage
 
 
-updatePlanet : Time -> List Stick -> Planet -> (Planet,List Point)
+updatePlanet : Time
+             -> List Stick
+             -> Planet
+             -> (Planet, List Point)
 updatePlanet dt sticks (Planet planet) =
     let newOrbitalAngle =
             planet.orbitalAngle + dt * 2 * pi / planet.orbitalPeriod
@@ -26,11 +29,11 @@ updatePlanet dt sticks (Planet planet) =
                  ) of
                 (Nothing, True) -> ( [], Just overpopulationTimer, [planetPos planet], "!!!")
                 (Just t, _) -> ( []
-                                   , Just (t - dt)
-                                   , []
-                                   , "!!!"
-                                   )
-                (op, False)     -> (potentialNewInhabitants, op,[],toString (List.length planet.inhabitants))
+                               , Just (t - dt)
+                               , []
+                               , "!!!"
+                               )
+                (op, False)  -> (potentialNewInhabitants, op,[],toString (List.length planet.inhabitants))
     in (Planet { planet
                   | orbitalAngle =
                     if newOrbitalAngle >= 2 * pi
@@ -48,14 +51,27 @@ updatePlanet dt sticks (Planet planet) =
 
 update : Message -> Model -> (Model, Cmd Message)
 update msg model =
-    (updateHelp msg model, Cmd.none)
+    case msg of
+        Tick dt ->
+            ( updateHelp msg model
+            , if model.untilPop - dt <= 0
+              then (List.concatMap popInhabitants model.planets
+                   |> List.map (Random.generate Pop)
+                   |> Cmd.batch)
+              else Cmd.none
+            )
+        msg -> (updateHelp msg model, Cmd.none)
 
 updateHelp : Message -> Model -> Model
 updateHelp msg model =
   case msg of
     Reset -> model
 
-    Second time -> {model | score = model.score+model.deltaScore}
+    Pop Nothing -> model
+    Pop (Just stick) ->
+        { model
+            | sticks = stick :: model.sticks
+        }
 
     Tick dt ->
       let
@@ -63,8 +79,14 @@ updateHelp msg model =
         (newPlanets,planetPoints) = List.map (updatePlanet dt model.sticks) model.planets |> List.unzip 
         --newParticles = List.concatMap (createExplosion 1) (points ++ List.concat planetPoints)
         newStickParticles = List.map (createExplosion 1) points
-        newPlanetParticles = List.map (createExplosion 100) (List.concat planetPoints)
+        newPlanetParticles = List.map (createExplosion 10) (List.concat planetPoints)
         newParticles = List.concat (newStickParticles ++ newPlanetParticles)
+
+        pop = model.untilPop - dt <= 0
+        newScore =
+            if pop
+            then model.score + model.deltaScore
+            else model.score
 
       in { model
             | particles = 
@@ -76,6 +98,11 @@ updateHelp msg model =
             --, score = model.score+model.deltaScore
             --, deltaScore = List.length model.sticks + List.sum(List.map (\(Planet planet) -> List.length planet.inhabitants) model.planets)
             , deltaScore = List.sum(List.map (\(Planet planet) -> List.length planet.inhabitants) model.planets)
+             , score = newScore
+             , untilPop =
+                 if pop
+                 then model.untilPop - dt + Time.second
+                 else model.untilPop - dt
         }
     Flick p ->
         let (newPlanets, flickedSticks) =
@@ -114,6 +141,25 @@ flickInhabitant p (Planet planet) =
                 }
        , List.map angleToStick flicked
        )
+
+popInhabitants : Planet -> List (Generator (Maybe Stick))
+popInhabitants (Planet planet) =
+    List.map (popInhabitant planet) planet.inhabitants
+
+popInhabitant planet angle =
+    let b = Random.map (\r -> r <= 0.2) (Random.float 0 1)
+        angleToStick angle pops fuzz =
+            let p = inhabitantPos (planetPos planet) planet.radius angle
+                dir = p .- planetPos planet
+                    |> Vector.normalize
+                    |> Vector.rotate fuzz
+            in if pops
+               then Just { pos = Vector.scale 20 dir .+ p
+                         , vel = Vector.scale (300 * pixelsPerSecond) dir
+                         , angle = angle
+                         }
+               else Nothing
+    in Random.map2 (angleToStick angle) b (Random.float -1 1)
 
 createExplosion : Int -> Point -> List Particle
 createExplosion numParticles pos =
@@ -185,4 +231,4 @@ type Message
     = Reset
     | Tick Time
     | Flick Point
-    | Second Time
+    | Pop (Maybe Stick)

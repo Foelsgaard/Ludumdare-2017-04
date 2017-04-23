@@ -80,6 +80,8 @@ initialModel =
           ]
     , score = 0
     , deltaScore = 0
+    , seed = Random.initialSeed 0
+    , untilPop = Time.second
     }
 
 randomStick : Generator Stick
@@ -121,10 +123,8 @@ subscriptions model =
     Platform.Sub.batch
         [ AnimationFrame.diffs (min maxDiffLength >> Tick)
         , Mouse.clicks (positionToPoint >> Flick)
-        , secondSubscription
         ]
 
 positionToPoint : Mouse.Position -> Point
 positionToPoint {x, y} = (toFloat x - 500, 500 - toFloat y)
 
-secondSubscription = Time.every Time.second Second

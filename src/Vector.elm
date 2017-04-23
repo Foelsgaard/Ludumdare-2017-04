@@ -32,3 +32,8 @@ dist p1 p2 = norm (p1 .- p2)
 normalize : Vector -> Vector
 normalize (x, y) = scale (1 / norm (x, y)) (x, y)
 
+rotate : Float -> Vector -> Vector
+rotate r (x, y) =
+    ( x * cos r - y * sin r
+    , x * sin r + y * cos r
+    )
