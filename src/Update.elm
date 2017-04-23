@@ -19,21 +19,18 @@ updatePlanet dt sticks (Planet planet) =
             List.filterMap (planetStickCollisionAngle planet) sticks
         potentialNewInhabitants = planet.inhabitants ++ collidingSticks
 
-        (newInhabitants, newOverpopulated, explodingPoints) =
+        (newInhabitants, newOverpopulated, explodingPoints, newTextString) =
             case ( planet.overpopulated
                  , List.length potentialNewInhabitants
                      >= planet.maxPopulation
                  ) of
-                (Nothing, True) -> ( [], Just overpopulationTimer, [planetPos planet])
-                (op, True)      -> ( []
-                                   , Maybe.map (\t -> (t - dt)) op
-                                   , []
-                                   )
-                (Just t, False) -> ( []
+                (Nothing, True) -> ( [], Just overpopulationTimer, [planetPos planet], "!!!")
+                (Just t, _) -> ( []
                                    , Just (t - dt)
                                    , []
+                                   , "!!!"
                                    )
-                (op, False)     -> (potentialNewInhabitants, op,[])
+                (op, False)     -> (potentialNewInhabitants, op,[],toString (List.length planet.inhabitants))
     in (Planet { planet
                   | orbitalAngle =
                     if newOrbitalAngle >= 2 * pi
@@ -46,6 +43,7 @@ updatePlanet dt sticks (Planet planet) =
                                     then Nothing
                                     else Just t
                           op     -> op
+                  , textString = newTextString
               },explodingPoints)
 
 update : Message -> Model -> (Model, Cmd Message)
@@ -56,6 +54,8 @@ updateHelp : Message -> Model -> Model
 updateHelp msg model =
   case msg of
     Reset -> model
+
+    Second time -> {model | score = model.score+model.deltaScore}
 
     Tick dt ->
       let
@@ -73,7 +73,9 @@ updateHelp msg model =
                 newSticks
             , planets =
                 newPlanets
-            , score = List.length model.sticks
+            --, score = model.score+model.deltaScore
+            --, deltaScore = List.length model.sticks + List.sum(List.map (\(Planet planet) -> List.length planet.inhabitants) model.planets)
+            , deltaScore = List.sum(List.map (\(Planet planet) -> List.length planet.inhabitants) model.planets)
         }
     Flick p ->
         let (newPlanets, flickedSticks) =
@@ -159,7 +161,7 @@ updateStick dt planets stick =
 
         newAngle = stick.angle +0.1
 
-    in if List.any (stickPlanetCollision stick) planets
+    in if List.any (stickPlanetCollision stick) planets || Vector.dist stick.pos (0,0) >= 1000 -- Max distance away from origin: 1000
        then Right stick.pos
        else Left { stick
                      | vel = newVel
@@ -171,3 +173,4 @@ type Message
     = Reset
     | Tick Time
     | Flick Point
+    | Second Time
