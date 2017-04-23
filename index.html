@@ -11828,40 +11828,51 @@ var _evancz$elm_graphics$Collage$ngon = F2(
 				f,
 				A2(_elm_lang$core$List$range, 0, n - 1)));
 	});
-var _user$project$Vector$norm = function (_p0) {
-	var _p1 = _p0;
-	return _elm_lang$core$Basics$sqrt(
-		Math.pow(_p1._0, 2) + Math.pow(_p1._1, 2));
-};
-var _user$project$Vector$clamp = F3(
-	function (low, high, _p2) {
-		var _p3 = _p2;
+var _user$project$Vector$rotate = F2(
+	function (r, _p0) {
+		var _p1 = _p0;
+		var _p3 = _p1._1;
+		var _p2 = _p1._0;
 		return {
 			ctor: '_Tuple2',
-			_0: A3(_elm_lang$core$Basics$clamp, low, high, _p3._0),
-			_1: A3(_elm_lang$core$Basics$clamp, low, high, _p3._1)
+			_0: (_p2 * _elm_lang$core$Basics$cos(r)) - (_p3 * _elm_lang$core$Basics$sin(r)),
+			_1: (_p2 * _elm_lang$core$Basics$sin(r)) + (_p3 * _elm_lang$core$Basics$cos(r))
+		};
+	});
+var _user$project$Vector$norm = function (_p4) {
+	var _p5 = _p4;
+	return _elm_lang$core$Basics$sqrt(
+		Math.pow(_p5._0, 2) + Math.pow(_p5._1, 2));
+};
+var _user$project$Vector$clamp = F3(
+	function (low, high, _p6) {
+		var _p7 = _p6;
+		return {
+			ctor: '_Tuple2',
+			_0: A3(_elm_lang$core$Basics$clamp, low, high, _p7._0),
+			_1: A3(_elm_lang$core$Basics$clamp, low, high, _p7._1)
 		};
 	});
 var _user$project$Vector$scale = F2(
-	function (scalar, _p4) {
-		var _p5 = _p4;
-		return {ctor: '_Tuple2', _0: _p5._0 * scalar, _1: _p5._1 * scalar};
+	function (scalar, _p8) {
+		var _p9 = _p8;
+		return {ctor: '_Tuple2', _0: _p9._0 * scalar, _1: _p9._1 * scalar};
 	});
-var _user$project$Vector$normalize = function (_p6) {
-	var _p7 = _p6;
-	var _p9 = _p7._1;
-	var _p8 = _p7._0;
+var _user$project$Vector$normalize = function (_p10) {
+	var _p11 = _p10;
+	var _p13 = _p11._1;
+	var _p12 = _p11._0;
 	return A2(
 		_user$project$Vector$scale,
 		1 / _user$project$Vector$norm(
-			{ctor: '_Tuple2', _0: _p8, _1: _p9}),
-		{ctor: '_Tuple2', _0: _p8, _1: _p9});
+			{ctor: '_Tuple2', _0: _p12, _1: _p13}),
+		{ctor: '_Tuple2', _0: _p12, _1: _p13});
 };
 var _user$project$Vector$sub = F2(
-	function (_p11, _p10) {
-		var _p12 = _p11;
-		var _p13 = _p10;
-		return {ctor: '_Tuple2', _0: _p12._0 - _p13._0, _1: _p12._1 - _p13._1};
+	function (_p15, _p14) {
+		var _p16 = _p15;
+		var _p17 = _p14;
+		return {ctor: '_Tuple2', _0: _p16._0 - _p17._0, _1: _p16._1 - _p17._1};
 	});
 var _user$project$Vector_ops = _user$project$Vector_ops || {};
 _user$project$Vector_ops['.-'] = _user$project$Vector$sub;
@@ -11871,10 +11882,10 @@ var _user$project$Vector$dist = F2(
 			A2(_user$project$Vector_ops['.-'], p1, p2));
 	});
 var _user$project$Vector$add = F2(
-	function (_p15, _p14) {
-		var _p16 = _p15;
-		var _p17 = _p14;
-		return {ctor: '_Tuple2', _0: _p16._0 + _p17._0, _1: _p16._1 + _p17._1};
+	function (_p19, _p18) {
+		var _p20 = _p19;
+		var _p21 = _p18;
+		return {ctor: '_Tuple2', _0: _p20._0 + _p21._0, _1: _p20._1 + _p21._1};
 	});
 var _user$project$Vector_ops = _user$project$Vector_ops || {};
 _user$project$Vector_ops['.+'] = _user$project$Vector$add;
@@ -11882,16 +11893,19 @@ var _user$project$Vector$sum = A2(
 	_elm_lang$core$List$foldr,
 	_user$project$Vector$add,
 	{ctor: '_Tuple2', _0: 0, _1: 0});
+var _user$project$Model$stickColor = _elm_lang$core$Color$black;
 var _user$project$Model$scoreboardSpacing = {ctor: '_Tuple2', _0: 0, _1: 15};
-var _user$project$Model$scoreboardPos = {ctor: '_Tuple2', _0: -400, _1: 465};
+var _user$project$Model$screenHeight = 800;
+var _user$project$Model$screenWidth = 1200;
+var _user$project$Model$scoreboardPos = {ctor: '_Tuple2', _0: _user$project$Model$screenWidth * -0.4, _1: _user$project$Model$screenHeight * 0.45};
 var _user$project$Model$particleMaxLifetime = 5;
 var _user$project$Model$pixelsPerSecond = 1 / _elm_lang$core$Time$second;
 var _user$project$Model$maxSpeed = 50000 * _user$project$Model$pixelsPerSecond;
 var _user$project$Model$g = 1.0e-2;
 var _user$project$Model$overpopulationTimer = 2 * _elm_lang$core$Time$second;
-var _user$project$Model$Model = F5(
-	function (a, b, c, d, e) {
-		return {particles: a, sticks: b, planets: c, score: d, deltaScore: e};
+var _user$project$Model$Model = F9(
+	function (a, b, c, d, e, f, g, h, i) {
+		return {particles: a, sticks: b, planets: c, score: d, deltaScore: e, seed: f, untilPop: g, timeElapsed: h, gameOver: i};
 	});
 var _user$project$Model$Stick = F3(
 	function (a, b, c) {
@@ -12140,7 +12154,7 @@ var _user$project$Update$flickInhabitant = F2(
 					_user$project$Vector_ops['.+'],
 					A2(_user$project$Vector$scale, 20, dir),
 					p),
-				vel: A2(_user$project$Vector$scale, 600 * _user$project$Model$pixelsPerSecond, dir),
+				vel: A2(_user$project$Vector$scale, 400 * _user$project$Model$pixelsPerSecond, dir),
 				angle: angle
 			};
 		};
@@ -12170,118 +12184,190 @@ var _user$project$Update$flickInhabitant = F2(
 			_1: A2(_elm_lang$core$List$map, angleToStick, flicked)
 		};
 	});
+var _user$project$Update$popInhabitant = F2(
+	function (planet, angle) {
+		var angleToStick = F3(
+			function (angle, pops, fuzz) {
+				var p = A3(
+					_user$project$Update$inhabitantPos,
+					_user$project$Util$planetPos(planet),
+					planet.radius,
+					angle);
+				var dir = A2(
+					_user$project$Vector$rotate,
+					fuzz,
+					_user$project$Vector$normalize(
+						A2(
+							_user$project$Vector_ops['.-'],
+							p,
+							_user$project$Util$planetPos(planet))));
+				return pops ? _elm_lang$core$Maybe$Just(
+					{
+						pos: A2(
+							_user$project$Vector_ops['.+'],
+							A2(_user$project$Vector$scale, 20, dir),
+							p),
+						vel: A2(_user$project$Vector$scale, 150 * _user$project$Model$pixelsPerSecond, dir),
+						angle: angle
+					}) : _elm_lang$core$Maybe$Nothing;
+			});
+		var b = A2(
+			_elm_lang$core$Random$map,
+			function (r) {
+				return _elm_lang$core$Native_Utils.cmp(r, 0.2) < 1;
+			},
+			A2(_elm_lang$core$Random$float, 0, 1));
+		return A3(
+			_elm_lang$core$Random$map2,
+			angleToStick(angle),
+			b,
+			A2(_elm_lang$core$Random$float, -1, 1));
+	});
+var _user$project$Update$popInhabitants = function (_p4) {
+	var _p5 = _p4;
+	var _p6 = _p5._0;
+	return A2(
+		_elm_lang$core$List$map,
+		_user$project$Update$popInhabitant(_p6),
+		_p6.inhabitants);
+};
 var _user$project$Update$updatePlanet = F3(
-	function (dt, sticks, _p4) {
-		var _p5 = _p4;
-		var _p10 = _p5._0;
+	function (dt, sticks, _p7) {
+		var _p8 = _p7;
+		var _p13 = _p8._0;
 		var collidingSticks = A2(
 			_elm_lang$core$List$filterMap,
-			_user$project$Util$planetStickCollisionAngle(_p10),
+			_user$project$Util$planetStickCollisionAngle(_p13),
 			sticks);
-		var potentialNewInhabitants = A2(_elm_lang$core$Basics_ops['++'], _p10.inhabitants, collidingSticks);
-		var _p6 = function () {
-			var _p7 = {
+		var potentialNewInhabitants = A2(_elm_lang$core$Basics_ops['++'], _p13.inhabitants, collidingSticks);
+		var _p9 = function () {
+			var _p10 = {
 				ctor: '_Tuple2',
-				_0: _p10.overpopulated,
+				_0: _p13.overpopulated,
 				_1: _elm_lang$core$Native_Utils.cmp(
 					_elm_lang$core$List$length(potentialNewInhabitants),
-					_p10.maxPopulation) > -1
+					_p13.maxPopulation) > 0
 			};
-			if (_p7._0.ctor === 'Nothing') {
-				if (_p7._1 === true) {
+			if (_p10._0.ctor === 'Nothing') {
+				if (_p10._1 === true) {
 					return {
-						ctor: '_Tuple4',
+						ctor: '_Tuple5',
 						_0: {ctor: '[]'},
 						_1: _elm_lang$core$Maybe$Just(_user$project$Model$overpopulationTimer),
 						_2: {
 							ctor: '::',
-							_0: _user$project$Util$planetPos(_p10),
+							_0: _user$project$Util$planetPos(_p13),
 							_1: {ctor: '[]'}
 						},
-						_3: '!!!'
+						_3: '!!!',
+						_4: A2(_elm_lang$core$Basics$max, _p13.maxPopulation - 1, 0)
 					};
 				} else {
 					return {
-						ctor: '_Tuple4',
+						ctor: '_Tuple5',
 						_0: potentialNewInhabitants,
-						_1: _p7._0,
+						_1: _p10._0,
 						_2: {ctor: '[]'},
-						_3: _elm_lang$core$Basics$toString(
-							_elm_lang$core$List$length(_p10.inhabitants))
+						_3: A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(
+								_elm_lang$core$List$length(_p13.inhabitants)),
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'/',
+								_elm_lang$core$Basics$toString(_p13.maxPopulation))),
+						_4: _p13.maxPopulation
 					};
 				}
 			} else {
 				return {
-					ctor: '_Tuple4',
+					ctor: '_Tuple5',
 					_0: {ctor: '[]'},
-					_1: _elm_lang$core$Maybe$Just(_p7._0._0 - dt),
+					_1: _elm_lang$core$Maybe$Just(_p10._0._0 - dt),
 					_2: {ctor: '[]'},
-					_3: '!!!'
+					_3: '!!!',
+					_4: _p13.maxPopulation
 				};
 			}
 		}();
-		var newInhabitants = _p6._0;
-		var newOverpopulated = _p6._1;
-		var explodingPoints = _p6._2;
-		var newTextString = _p6._3;
-		var newOrbitalAngle = _p10.orbitalAngle + (((dt * 2) * _elm_lang$core$Basics$pi) / _p10.orbitalPeriod);
+		var newInhabitants = _p9._0;
+		var newOverpopulated = _p9._1;
+		var explodingPoints = _p9._2;
+		var newTextString = _p9._3;
+		var newMaxPopulation = _p9._4;
+		var newOrbitalAngle = _p13.orbitalAngle + (((dt * 2) * _elm_lang$core$Basics$pi) / _p13.orbitalPeriod);
 		return {
 			ctor: '_Tuple2',
 			_0: _user$project$Model$Planet(
 				_elm_lang$core$Native_Utils.update(
-					_p10,
+					_p13,
 					{
 						orbitalAngle: (_elm_lang$core$Native_Utils.cmp(newOrbitalAngle, 2 * _elm_lang$core$Basics$pi) > -1) ? (newOrbitalAngle - (2 * _elm_lang$core$Basics$pi)) : newOrbitalAngle,
 						inhabitants: newInhabitants,
 						overpopulated: function () {
-							var _p8 = newOverpopulated;
-							if (_p8.ctor === 'Just') {
-								var _p9 = _p8._0;
-								return (_elm_lang$core$Native_Utils.cmp(_p9, 0) < 1) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p9);
+							var _p11 = newOverpopulated;
+							if (_p11.ctor === 'Just') {
+								var _p12 = _p11._0;
+								return (_elm_lang$core$Native_Utils.cmp(_p12, 0) < 1) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p12);
 							} else {
-								return _p8;
+								return _p11;
 							}
 						}(),
-						textString: newTextString
+						textString: newTextString,
+						maxPopulation: newMaxPopulation
 					})),
 			_1: explodingPoints
 		};
 	});
 var _user$project$Update$updateHelp = F2(
 	function (msg, model) {
-		var _p11 = msg;
-		switch (_p11.ctor) {
-			case 'Reset':
-				return model;
-			case 'Second':
-				return _elm_lang$core$Native_Utils.update(
-					model,
-					{score: model.score + model.deltaScore});
+		var _p14 = msg;
+		switch (_p14.ctor) {
+			case 'Pop':
+				if (_p14._0.ctor === 'Nothing') {
+					return model;
+				} else {
+					return _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							sticks: {ctor: '::', _0: _p14._0._0, _1: model.sticks}
+						});
+				}
 			case 'Tick':
-				var _p16 = _p11._0;
-				var _p12 = _elm_lang$core$List$unzip(
+				var _p21 = _p14._0;
+				var pop = _elm_lang$core$Native_Utils.cmp(model.untilPop - _p21, 0) < 1;
+				var newScore = pop ? (model.score + model.deltaScore) : model.score;
+				var _p15 = _elm_lang$core$List$unzip(
 					A2(
 						_elm_lang$core$List$map,
-						A2(_user$project$Update$updatePlanet, _p16, model.sticks),
+						A2(_user$project$Update$updatePlanet, _p21, model.sticks),
 						model.planets));
-				var newPlanets = _p12._0;
-				var planetPoints = _p12._1;
+				var newPlanets = _p15._0;
+				var planetPoints = _p15._1;
 				var newPlanetParticles = A2(
 					_elm_lang$core$List$map,
-					_user$project$Update$createExplosion(100),
+					_user$project$Update$createExplosion(10),
 					_elm_lang$core$List$concat(planetPoints));
-				var _p13 = A2(
+				var _p16 = A2(
 					_user$project$Util$split,
 					model.sticks,
-					A2(_user$project$Update$updateStick, _p16, model.planets));
-				var newSticks = _p13._0;
-				var points = _p13._1;
+					A2(_user$project$Update$updateStick, _p21, model.planets));
+				var newSticks = _p16._0;
+				var points = _p16._1;
 				var newStickParticles = A2(
 					_elm_lang$core$List$map,
 					_user$project$Update$createExplosion(1),
 					points);
 				var newParticles = _elm_lang$core$List$concat(
 					A2(_elm_lang$core$Basics_ops['++'], newStickParticles, newPlanetParticles));
+				var gameOver = _elm_lang$core$List$isEmpty(newSticks) && _elm_lang$core$List$isEmpty(
+					A2(
+						_elm_lang$core$List$concatMap,
+						function (_p17) {
+							var _p18 = _p17;
+							return _p18._0.inhabitants;
+						},
+						model.planets));
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{
@@ -12289,7 +12375,7 @@ var _user$project$Update$updateHelp = F2(
 							_elm_lang$core$Basics_ops['++'],
 							A2(
 								_elm_lang$core$List$filterMap,
-								_user$project$Update$updateParticle(_p16),
+								_user$project$Update$updateParticle(_p21),
 								model.particles),
 							newParticles),
 						sticks: newSticks,
@@ -12297,20 +12383,23 @@ var _user$project$Update$updateHelp = F2(
 						deltaScore: _elm_lang$core$List$sum(
 							A2(
 								_elm_lang$core$List$map,
-								function (_p14) {
-									var _p15 = _p14;
-									return _elm_lang$core$List$length(_p15._0.inhabitants);
+								function (_p19) {
+									var _p20 = _p19;
+									return _elm_lang$core$List$length(_p20._0.inhabitants);
 								},
-								model.planets))
+								model.planets)),
+						score: newScore,
+						untilPop: pop ? ((model.untilPop - _p21) + _elm_lang$core$Time$second) : (model.untilPop - _p21),
+						gameOver: gameOver
 					});
 			default:
-				var _p17 = _elm_lang$core$List$unzip(
+				var _p22 = _elm_lang$core$List$unzip(
 					A2(
 						_elm_lang$core$List$map,
-						_user$project$Update$flickInhabitant(_p11._0),
+						_user$project$Update$flickInhabitant(_p14._0),
 						model.planets));
-				var newPlanets = _p17._0;
-				var flickedSticks = _p17._1;
+				var newPlanets = _p22._0;
+				var flickedSticks = _p22._1;
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{
@@ -12322,16 +12411,8 @@ var _user$project$Update$updateHelp = F2(
 					});
 		}
 	});
-var _user$project$Update$update = F2(
-	function (msg, model) {
-		return {
-			ctor: '_Tuple2',
-			_0: A2(_user$project$Update$updateHelp, msg, model),
-			_1: _elm_lang$core$Platform_Cmd$none
-		};
-	});
-var _user$project$Update$Second = function (a) {
-	return {ctor: 'Second', _0: a};
+var _user$project$Update$Pop = function (a) {
+	return {ctor: 'Pop', _0: a};
 };
 var _user$project$Update$Flick = function (a) {
 	return {ctor: 'Flick', _0: a};
@@ -12339,7 +12420,81 @@ var _user$project$Update$Flick = function (a) {
 var _user$project$Update$Tick = function (a) {
 	return {ctor: 'Tick', _0: a};
 };
-var _user$project$Update$Reset = {ctor: 'Reset'};
+var _user$project$Update$update = F2(
+	function (msg, model) {
+		var _p23 = {ctor: '_Tuple2', _0: model.gameOver, _1: msg};
+		_v8_3:
+		do {
+			if (_p23.ctor === '_Tuple2') {
+				if (_p23._0 === false) {
+					if (_p23._1.ctor === 'Tick') {
+						return {
+							ctor: '_Tuple2',
+							_0: A2(_user$project$Update$updateHelp, msg, model),
+							_1: (_elm_lang$core$Native_Utils.cmp(model.untilPop - _p23._1._0, 0) < 1) ? _elm_lang$core$Platform_Cmd$batch(
+								A2(
+									_elm_lang$core$List$map,
+									_elm_lang$core$Random$generate(_user$project$Update$Pop),
+									A2(_elm_lang$core$List$concatMap, _user$project$Update$popInhabitants, model.planets))) : _elm_lang$core$Platform_Cmd$none
+						};
+					} else {
+						return {
+							ctor: '_Tuple2',
+							_0: A2(_user$project$Update$updateHelp, _p23._1, model),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					}
+				} else {
+					if (_p23._1.ctor === 'Tick') {
+						return {
+							ctor: '_Tuple2',
+							_0: A2(
+								_user$project$Update$updateHelp,
+								_user$project$Update$Tick(_p23._1._0),
+								model),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					} else {
+						break _v8_3;
+					}
+				}
+			} else {
+				break _v8_3;
+			}
+		} while(false);
+		return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+	});
+var _user$project$View$gradStar = A5(
+	_elm_lang$core$Color$radial,
+	{ctor: '_Tuple2', _0: 0, _1: 0},
+	5,
+	{ctor: '_Tuple2', _0: 0, _1: 0},
+	25,
+	{
+		ctor: '::',
+		_0: {
+			ctor: '_Tuple2',
+			_0: 0,
+			_1: A3(_elm_lang$core$Color$rgb, 244, 150, 1)
+		},
+		_1: {
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 0.5,
+				_1: A3(_elm_lang$core$Color$rgb, 228, 199, 0)
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 1,
+					_1: A4(_elm_lang$core$Color$rgba, 228, 199, 0, 0)
+				},
+				_1: {ctor: '[]'}
+			}
+		}
+	});
 var _user$project$View$drawParticle = function (particle) {
 	return A2(
 		_evancz$elm_graphics$Collage$move,
@@ -12364,13 +12519,13 @@ var _user$project$View$drawStickFigure = function (angle) {
 						{ctor: '_Tuple2', _0: 0, _1: 3},
 						A2(
 							_evancz$elm_graphics$Collage$filled,
-							_elm_lang$core$Color$black,
+							_user$project$Model$stickColor,
 							_evancz$elm_graphics$Collage$circle(3))),
 					_1: {
 						ctor: '::',
 						_0: A2(
 							_evancz$elm_graphics$Collage$filled,
-							_elm_lang$core$Color$black,
+							_user$project$Model$stickColor,
 							A2(_evancz$elm_graphics$Collage$rect, 2, 10)),
 						_1: {
 							ctor: '::',
@@ -12382,7 +12537,7 @@ var _user$project$View$drawStickFigure = function (angle) {
 									_elm_lang$core$Basics$degrees(25),
 									A2(
 										_evancz$elm_graphics$Collage$filled,
-										_elm_lang$core$Color$black,
+										_user$project$Model$stickColor,
 										A2(_evancz$elm_graphics$Collage$rect, 2, 5)))),
 							_1: {
 								ctor: '::',
@@ -12394,7 +12549,7 @@ var _user$project$View$drawStickFigure = function (angle) {
 										_elm_lang$core$Basics$degrees(-25),
 										A2(
 											_evancz$elm_graphics$Collage$filled,
-											_elm_lang$core$Color$black,
+											_user$project$Model$stickColor,
 											A2(_evancz$elm_graphics$Collage$rect, 2, 5)))),
 								_1: {
 									ctor: '::',
@@ -12406,7 +12561,7 @@ var _user$project$View$drawStickFigure = function (angle) {
 											_elm_lang$core$Basics$degrees(65),
 											A2(
 												_evancz$elm_graphics$Collage$filled,
-												_elm_lang$core$Color$black,
+												_user$project$Model$stickColor,
 												A2(_evancz$elm_graphics$Collage$rect, 2, 4)))),
 									_1: {
 										ctor: '::',
@@ -12418,7 +12573,7 @@ var _user$project$View$drawStickFigure = function (angle) {
 												_elm_lang$core$Basics$degrees(-65),
 												A2(
 													_evancz$elm_graphics$Collage$filled,
-													_elm_lang$core$Color$black,
+													_user$project$Model$stickColor,
 													A2(_evancz$elm_graphics$Collage$rect, 2, 4)))),
 										_1: {ctor: '[]'}
 									}
@@ -12430,26 +12585,38 @@ var _user$project$View$drawStickFigure = function (angle) {
 };
 var _user$project$View$drawPlanet = function (_p0) {
 	var _p1 = _p0;
-	var _p3 = _p1._0;
+	var _p4 = _p1._0;
 	var hue = function () {
-		var _p2 = _p3.overpopulated;
-		if (_p2.ctor === 'Nothing') {
-			return A3(
-				_elm_lang$core$Basics$clamp,
-				0,
-				(2 / 3) * _elm_lang$core$Basics$pi,
-				((2 / 3) * _elm_lang$core$Basics$pi) * (1 - (_elm_lang$core$Basics$toFloat(
-					_elm_lang$core$List$length(_p3.inhabitants)) / _elm_lang$core$Basics$toFloat(_p3.maxPopulation))));
-		} else {
-			return (((0.5 * 2) / 3) * _elm_lang$core$Basics$pi) * (1 - (_p2._0 / _user$project$Model$overpopulationTimer));
-		}
+		var _p2 = {ctor: '_Tuple2', _0: _p4.overpopulated, _1: _p4.maxPopulation};
+		_v1_0:
+		do {
+			if (_p2._0.ctor === 'Nothing') {
+				if (_p2._1 === 0) {
+					break _v1_0;
+				} else {
+					return A3(
+						_elm_lang$core$Basics$clamp,
+						0,
+						(2 / 3) * _elm_lang$core$Basics$pi,
+						((2 / 3) * _elm_lang$core$Basics$pi) * (1 - (_elm_lang$core$Basics$toFloat(
+							_elm_lang$core$List$length(_p4.inhabitants)) / _elm_lang$core$Basics$toFloat(_p4.maxPopulation))));
+				}
+			} else {
+				if (_p2._1 === 0) {
+					break _v1_0;
+				} else {
+					return (((0.5 * 2) / 3) * _elm_lang$core$Basics$pi) * (1 - (_p2._0._0 / _user$project$Model$overpopulationTimer));
+				}
+			}
+		} while(false);
+		return 0;
 	}();
 	var drawInhabitant = function (angle) {
 		return A2(
 			_evancz$elm_graphics$Collage$move,
 			A2(
 				_user$project$Vector$scale,
-				5 + _p3.radius,
+				5 + _p4.radius,
 				{
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Basics$cos(angle),
@@ -12457,27 +12624,58 @@ var _user$project$View$drawPlanet = function (_p0) {
 				}),
 			_user$project$View$drawStickFigure(angle));
 	};
-	var pos = _user$project$Util$planetPos(_p3);
+	var pos = _user$project$Util$planetPos(_p4);
 	return A2(
 		_evancz$elm_graphics$Collage$move,
 		pos,
 		_evancz$elm_graphics$Collage$group(
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				{
+			{
+				ctor: '::',
+				_0: A2(
+					_evancz$elm_graphics$Collage$filled,
+					A3(_elm_lang$core$Color$hsl, hue, 1, 0.5),
+					_evancz$elm_graphics$Collage$circle(_p4.radius)),
+				_1: {
 					ctor: '::',
-					_0: A2(
-						_evancz$elm_graphics$Collage$filled,
-						A3(_elm_lang$core$Color$hsl, hue, 1, 0.5),
-						_evancz$elm_graphics$Collage$circle(_p3.radius)),
-					_1: {
-						ctor: '::',
-						_0: _evancz$elm_graphics$Collage$text(
-							_evancz$elm_graphics$Text$fromString(_p3.textString)),
-						_1: {ctor: '[]'}
-					}
-				},
-				A2(_elm_lang$core$List$map, drawInhabitant, _p3.inhabitants))));
+					_0: _evancz$elm_graphics$Collage$text(
+						function () {
+							var _p3 = {ctor: '_Tuple2', _0: _p4.overpopulated, _1: _p4.maxPopulation};
+							_v2_0:
+							do {
+								if (_p3._0.ctor === 'Nothing') {
+									if (_p3._1 === 0) {
+										break _v2_0;
+									} else {
+										return _evancz$elm_graphics$Text$fromString(
+											_elm_lang$core$String$concat(
+												{
+													ctor: '::',
+													_0: _elm_lang$core$Basics$toString(
+														_elm_lang$core$List$length(_p4.inhabitants)),
+													_1: {
+														ctor: '::',
+														_0: '/',
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$core$Basics$toString(_p4.maxPopulation),
+															_1: {ctor: '[]'}
+														}
+													}
+												}));
+									}
+								} else {
+									if (_p3._1 === 0) {
+										break _v2_0;
+									} else {
+										return _evancz$elm_graphics$Text$fromString('!!!');
+									}
+								}
+							} while(false);
+							return _evancz$elm_graphics$Text$fromString('!!!');
+						}()),
+					_1: A2(_elm_lang$core$List$map, drawInhabitant, _p4.inhabitants)
+				}
+			}));
 };
 var _user$project$View$drawStick = function (stick) {
 	return A2(
@@ -12495,31 +12693,32 @@ var _user$project$View$view = function (model) {
 				{ctor: '_Tuple2', _0: 0, _1: 0},
 				A2(
 					_evancz$elm_graphics$Collage$filled,
-					A3(_elm_lang$core$Color$hsl, 1, 1, 0.4),
-					_evancz$elm_graphics$Collage$circle(15))),
+					A3(_elm_lang$core$Color$hsl, 1.2 * _elm_lang$core$Basics$pi, 0.5, 0.8),
+					A2(_evancz$elm_graphics$Collage$rect, _user$project$Model$screenWidth, _user$project$Model$screenHeight))),
 			_1: {ctor: '[]'}
 		},
 		A2(
 			_elm_lang$core$Basics_ops['++'],
-			A2(_elm_lang$core$List$map, _user$project$View$drawStick, model.sticks),
+			{
+				ctor: '::',
+				_0: A2(
+					_evancz$elm_graphics$Collage$move,
+					{ctor: '_Tuple2', _0: 0, _1: 0},
+					A2(
+						_evancz$elm_graphics$Collage$gradient,
+						_user$project$View$gradStar,
+						_evancz$elm_graphics$Collage$circle(200))),
+				_1: {ctor: '[]'}
+			},
 			A2(
 				_elm_lang$core$Basics_ops['++'],
-				A2(_elm_lang$core$List$map, _user$project$View$drawPlanet, model.planets),
+				A2(_elm_lang$core$List$map, _user$project$View$drawStick, model.sticks),
 				A2(
 					_elm_lang$core$Basics_ops['++'],
-					A2(_elm_lang$core$List$map, _user$project$View$drawParticle, model.particles),
+					A2(_elm_lang$core$List$map, _user$project$View$drawPlanet, model.planets),
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						{
-							ctor: '::',
-							_0: A2(
-								_evancz$elm_graphics$Collage$move,
-								{ctor: '_Tuple2', _0: 450, _1: 450},
-								_evancz$elm_graphics$Collage$text(
-									_evancz$elm_graphics$Text$fromString(
-										_elm_lang$core$Basics$toString(model.score)))),
-							_1: {ctor: '[]'}
-						},
+						A2(_elm_lang$core$List$map, _user$project$View$drawParticle, model.particles),
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							{
@@ -12575,35 +12774,91 @@ var _user$project$View$view = function (model) {
 															_elm_lang$core$Basics$toString(model.deltaScore))))),
 											_1: {ctor: '[]'}
 										},
-										{
-											ctor: '::',
-											_0: A2(
-												_evancz$elm_graphics$Collage$move,
-												A2(
-													_user$project$Vector$sub,
-													_user$project$Model$scoreboardPos,
-													A2(_user$project$Vector$scale, 4, _user$project$Model$scoreboardSpacing)),
-												_evancz$elm_graphics$Collage$text(
-													_evancz$elm_graphics$Text$fromString('from the inhabitants of your planets!'))),
-											_1: {ctor: '[]'}
-										})))))))));
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											{
+												ctor: '::',
+												_0: A2(
+													_evancz$elm_graphics$Collage$move,
+													A2(
+														_user$project$Vector$sub,
+														_user$project$Model$scoreboardPos,
+														A2(_user$project$Vector$scale, 4, _user$project$Model$scoreboardSpacing)),
+													_evancz$elm_graphics$Collage$text(
+														_evancz$elm_graphics$Text$fromString('from the inhabitants of your planets!'))),
+												_1: {ctor: '[]'}
+											},
+											model.gameOver ? {
+												ctor: '::',
+												_0: A2(
+													_evancz$elm_graphics$Collage$move,
+													{ctor: '_Tuple2', _0: 0, _1: _user$project$Model$screenHeight * 0.3},
+													_evancz$elm_graphics$Collage$text(
+														A2(
+															_evancz$elm_graphics$Text$style,
+															{
+																typeface: {
+																	ctor: '::',
+																	_0: 'Arial',
+																	_1: {ctor: '[]'}
+																},
+																height: _elm_lang$core$Maybe$Just(40),
+																color: _elm_lang$core$Color$black,
+																bold: true,
+																italic: false,
+																line: _elm_lang$core$Maybe$Nothing
+															},
+															_evancz$elm_graphics$Text$fromString('Game Over')))),
+												_1: {
+													ctor: '::',
+													_0: A2(
+														_evancz$elm_graphics$Collage$move,
+														{ctor: '_Tuple2', _0: 0, _1: _user$project$Model$screenHeight * 0.2},
+														_evancz$elm_graphics$Collage$text(
+															A2(
+																_evancz$elm_graphics$Text$style,
+																{
+																	typeface: {
+																		ctor: '::',
+																		_0: 'Arial',
+																		_1: {ctor: '[]'}
+																	},
+																	height: _elm_lang$core$Maybe$Just(40),
+																	color: _elm_lang$core$Color$black,
+																	bold: true,
+																	italic: false,
+																	line: _elm_lang$core$Maybe$Nothing
+																},
+																_evancz$elm_graphics$Text$fromString(
+																	_elm_lang$core$String$concat(
+																		{
+																			ctor: '::',
+																			_0: 'Final score: ',
+																			_1: {
+																				ctor: '::',
+																				_0: _elm_lang$core$Basics$toString(model.score),
+																				_1: {ctor: '[]'}
+																			}
+																		}))))),
+													_1: {ctor: '[]'}
+												}
+											} : {ctor: '[]'}))))))))));
 	return A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
 		{
 			ctor: '::',
 			_0: _evancz$elm_graphics$Element$toHtml(
-				A3(_evancz$elm_graphics$Collage$collage, 1000, 1000, entities)),
+				A3(_evancz$elm_graphics$Collage$collage, 1200, 800, entities)),
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$Main$secondSubscription = A2(_elm_lang$core$Time$every, _elm_lang$core$Time$second, _user$project$Update$Second);
 var _user$project$Main$positionToPoint = function (_p0) {
 	var _p1 = _p0;
 	return {
 		ctor: '_Tuple2',
-		_0: _elm_lang$core$Basics$toFloat(_p1.x) - 500,
-		_1: 500 - _elm_lang$core$Basics$toFloat(_p1.y)
+		_0: _elm_lang$core$Basics$toFloat(_p1.x) - (_user$project$Model$screenWidth * 0.5),
+		_1: (_user$project$Model$screenHeight * 0.5) - _elm_lang$core$Basics$toFloat(_p1.y)
 	};
 };
 var _user$project$Main$maxDiffLength = 20 * _elm_lang$core$Time$millisecond;
@@ -12623,11 +12878,7 @@ var _user$project$Main$subscriptions = function (model) {
 						return _user$project$Update$Flick(
 							_user$project$Main$positionToPoint(_p3));
 					}),
-				_1: {
-					ctor: '::',
-					_0: _user$project$Main$secondSubscription,
-					_1: {ctor: '[]'}
-				}
+				_1: {ctor: '[]'}
 			}
 		});
 };
@@ -12675,18 +12926,18 @@ var _user$project$Main$initialModel = {
 	sticks: _elm_lang$core$Tuple$first(
 		A2(
 			_elm_lang$core$Random$step,
-			A2(_elm_lang$core$Random$list, 100, _user$project$Main$randomStick),
+			A2(_elm_lang$core$Random$list, 0, _user$project$Main$randomStick),
 			_elm_lang$core$Random$initialSeed(0))),
 	planets: {
 		ctor: '::',
 		_0: _user$project$Model$Planet(
 			{
-				radius: 20,
-				mass: 1000,
+				radius: 30,
+				mass: 500,
 				orbitalRadius: 300,
 				orbitalAngle: 0,
-				orbitalPeriod: 50 * _elm_lang$core$Time$second,
-				maxPopulation: 10,
+				orbitalPeriod: 35 * _elm_lang$core$Time$second,
+				maxPopulation: 7,
 				inhabitants: {ctor: '[]'},
 				overpopulated: _elm_lang$core$Maybe$Nothing,
 				textString: 'Test'
@@ -12695,13 +12946,17 @@ var _user$project$Main$initialModel = {
 			ctor: '::',
 			_0: _user$project$Model$Planet(
 				{
-					radius: 15,
-					mass: 500,
-					orbitalRadius: 150,
+					radius: 24,
+					mass: 300,
+					orbitalRadius: 250,
 					orbitalAngle: 3,
-					orbitalPeriod: 20 * _elm_lang$core$Time$second,
-					maxPopulation: 10,
-					inhabitants: {ctor: '[]'},
+					orbitalPeriod: 30 * _elm_lang$core$Time$second,
+					maxPopulation: 6,
+					inhabitants: {
+						ctor: '::',
+						_0: _elm_lang$core$Basics$pi * 0.5,
+						_1: {ctor: '[]'}
+					},
 					overpopulated: _elm_lang$core$Maybe$Nothing,
 					textString: 'Test'
 				}),
@@ -12709,12 +12964,12 @@ var _user$project$Main$initialModel = {
 				ctor: '::',
 				_0: _user$project$Model$Planet(
 					{
-						radius: 5,
-						mass: 50,
-						orbitalRadius: 50,
+						radius: 15,
+						mass: 100,
+						orbitalRadius: 200,
 						orbitalAngle: 4,
-						orbitalPeriod: 3 * _elm_lang$core$Time$second,
-						maxPopulation: 5,
+						orbitalPeriod: 25 * _elm_lang$core$Time$second,
+						maxPopulation: 3,
 						inhabitants: {ctor: '[]'},
 						overpopulated: _elm_lang$core$Maybe$Nothing,
 						textString: 'Test'
@@ -12723,23 +12978,42 @@ var _user$project$Main$initialModel = {
 					ctor: '::',
 					_0: _user$project$Model$Planet(
 						{
-							radius: 10,
-							mass: 250,
-							orbitalRadius: 400,
-							orbitalAngle: 2,
-							orbitalPeriod: 40 * _elm_lang$core$Time$second,
-							maxPopulation: 10,
+							radius: 18,
+							mass: 220,
+							orbitalRadius: 150,
+							orbitalAngle: 9,
+							orbitalPeriod: 20 * _elm_lang$core$Time$second,
+							maxPopulation: 5,
 							inhabitants: {ctor: '[]'},
 							overpopulated: _elm_lang$core$Maybe$Nothing,
 							textString: 'Test'
 						}),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: _user$project$Model$Planet(
+							{
+								radius: 10,
+								mass: 280,
+								orbitalRadius: 100,
+								orbitalAngle: 1.5 * _elm_lang$core$Basics$pi,
+								orbitalPeriod: 15 * _elm_lang$core$Time$second,
+								maxPopulation: 2,
+								inhabitants: {ctor: '[]'},
+								overpopulated: _elm_lang$core$Maybe$Nothing,
+								textString: 'Test'
+							}),
+						_1: {ctor: '[]'}
+					}
 				}
 			}
 		}
 	},
 	score: 0,
-	deltaScore: 0
+	deltaScore: 0,
+	seed: _elm_lang$core$Random$initialSeed(0),
+	untilPop: _elm_lang$core$Time$second,
+	timeElapsed: 0,
+	gameOver: false
 };
 var _user$project$Main$main = _elm_lang$html$Html$program(
 	{
