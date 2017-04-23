@@ -51,3 +51,26 @@ stickPlanetCollision stick (Planet planet) =
     }
 
 find p = List.filter p >> List.head
+
+type Either a b
+    = Left a
+    | Right b
+
+left : Either a b -> Maybe a
+left either =
+    case either of
+        Left a  -> Just a
+        Right _ -> Nothing
+
+right : Either a b -> Maybe b
+right either =
+    case either of
+        Left _  -> Nothing
+        Right b -> Just b
+
+split : List a -> (a -> Either b c) -> (List b, List c)
+split xs f =
+    let eithers = List.map f xs
+        ls = List.filterMap left eithers
+        rs = List.filterMap right eithers
+    in (ls, rs)
