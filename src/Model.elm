@@ -6,6 +6,7 @@ import Time exposing (Time)
 import Collage
 import Dict exposing (Dict)
 import Random exposing (Generator)
+import Color exposing (..)
 
 -- Types
 
@@ -17,6 +18,7 @@ type alias Model =
     , deltaScore : Int
     , seed : Random.Seed
     , untilPop : Time
+    , timeElapsed : Int
     }
 
 type alias Key = Int
@@ -58,3 +60,6 @@ particleMaxLifetime = 5
 
 scoreboardPos = (-400,465)
 scoreboardSpacing = (0,15)
+
+stickColor = Color.black  -- (Color.hsl 0 0 0.5)
+ 

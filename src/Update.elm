@@ -22,18 +22,24 @@ updatePlanet dt sticks (Planet planet) =
             List.filterMap (planetStickCollisionAngle planet) sticks
         potentialNewInhabitants = planet.inhabitants ++ collidingSticks
 
-        (newInhabitants, newOverpopulated, explodingPoints, newTextString) =
+        (newInhabitants, newOverpopulated, explodingPoints, newTextString, newMaxPopulation) =
             case ( planet.overpopulated
                  , List.length potentialNewInhabitants
                      >= planet.maxPopulation
                  ) of
-                (Nothing, True) -> ( [], Just overpopulationTimer, [planetPos planet], "!!!")
+                (Nothing, True) -> ( [], Just overpopulationTimer, [planetPos planet], "!!!", max (planet.maxPopulation-1) 0 )
                 (Just t, _) -> ( []
                                , Just (t - dt)
                                , []
                                , "!!!"
+                               , planet.maxPopulation
                                )
-                (op, False)  -> (potentialNewInhabitants, op,[],toString (List.length planet.inhabitants))
+                (op, False) -> ( potentialNewInhabitants
+                               , op
+                               , []
+                               , (toString (List.length planet.inhabitants))++"/"++toString planet.maxPopulation
+                               , planet.maxPopulation
+                               )
     in (Planet { planet
                   | orbitalAngle =
                     if newOrbitalAngle >= 2 * pi
@@ -47,6 +53,7 @@ updatePlanet dt sticks (Planet planet) =
                                     else Just t
                           op     -> op
                   , textString = newTextString
+                  , maxPopulation = newMaxPopulation
               },explodingPoints)
 
 update : Message -> Model -> (Model, Cmd Message)
