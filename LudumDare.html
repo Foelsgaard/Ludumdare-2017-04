@@ -6986,6 +6986,190 @@ var _elm_lang$core$Regex$AtMost = function (a) {
 	return {ctor: 'AtMost', _0: a};
 };
 var _elm_lang$core$Regex$All = {ctor: 'All'};
+var _elm_lang$dom$Native_Dom = function() {
+
+var fakeNode = {
+	addEventListener: function() {},
+	removeEventListener: function() {}
+};
+
+var onDocument = on(typeof document !== 'undefined' ? document : fakeNode);
+var onWindow = on(typeof window !== 'undefined' ? window : fakeNode);
+
+function on(node)
+{
+	return function(eventName, decoder, toTask)
+	{
+		return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
+
+			function performTask(event)
+			{
+				var result = A2(_elm_lang$core$Json_Decode$decodeValue, decoder, event);
+				if (result.ctor === 'Ok')
+				{
+					_elm_lang$core$Native_Scheduler.rawSpawn(toTask(result._0));
+				}
+			}
+
+			node.addEventListener(eventName, performTask);
+
+			return function()
+			{
+				node.removeEventListener(eventName, performTask);
+			};
+		});
+	};
+}
+
+var rAF = typeof requestAnimationFrame !== 'undefined'
+	? requestAnimationFrame
+	: function(callback) { callback(); };
+
+function withNode(id, doStuff)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		rAF(function()
+		{
+			var node = document.getElementById(id);
+			if (node === null)
+			{
+				callback(_elm_lang$core$Native_Scheduler.fail({ ctor: 'NotFound', _0: id }));
+				return;
+			}
+			callback(_elm_lang$core$Native_Scheduler.succeed(doStuff(node)));
+		});
+	});
+}
+
+
+// FOCUS
+
+function focus(id)
+{
+	return withNode(id, function(node) {
+		node.focus();
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+function blur(id)
+{
+	return withNode(id, function(node) {
+		node.blur();
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+
+// SCROLLING
+
+function getScrollTop(id)
+{
+	return withNode(id, function(node) {
+		return node.scrollTop;
+	});
+}
+
+function setScrollTop(id, desiredScrollTop)
+{
+	return withNode(id, function(node) {
+		node.scrollTop = desiredScrollTop;
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+function toBottom(id)
+{
+	return withNode(id, function(node) {
+		node.scrollTop = node.scrollHeight;
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+function getScrollLeft(id)
+{
+	return withNode(id, function(node) {
+		return node.scrollLeft;
+	});
+}
+
+function setScrollLeft(id, desiredScrollLeft)
+{
+	return withNode(id, function(node) {
+		node.scrollLeft = desiredScrollLeft;
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+function toRight(id)
+{
+	return withNode(id, function(node) {
+		node.scrollLeft = node.scrollWidth;
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+
+// SIZE
+
+function width(options, id)
+{
+	return withNode(id, function(node) {
+		switch (options.ctor)
+		{
+			case 'Content':
+				return node.scrollWidth;
+			case 'VisibleContent':
+				return node.clientWidth;
+			case 'VisibleContentWithBorders':
+				return node.offsetWidth;
+			case 'VisibleContentWithBordersAndMargins':
+				var rect = node.getBoundingClientRect();
+				return rect.right - rect.left;
+		}
+	});
+}
+
+function height(options, id)
+{
+	return withNode(id, function(node) {
+		switch (options.ctor)
+		{
+			case 'Content':
+				return node.scrollHeight;
+			case 'VisibleContent':
+				return node.clientHeight;
+			case 'VisibleContentWithBorders':
+				return node.offsetHeight;
+			case 'VisibleContentWithBordersAndMargins':
+				var rect = node.getBoundingClientRect();
+				return rect.bottom - rect.top;
+		}
+	});
+}
+
+return {
+	onDocument: F3(onDocument),
+	onWindow: F3(onWindow),
+
+	focus: focus,
+	blur: blur,
+
+	getScrollTop: getScrollTop,
+	setScrollTop: F2(setScrollTop),
+	getScrollLeft: getScrollLeft,
+	setScrollLeft: F2(setScrollLeft),
+	toBottom: toBottom,
+	toRight: toRight,
+
+	height: F2(height),
+	width: F2(width)
+};
+
+}();
+var _elm_lang$dom$Dom_LowLevel$onWindow = _elm_lang$dom$Native_Dom.onWindow;
+var _elm_lang$dom$Dom_LowLevel$onDocument = _elm_lang$dom$Native_Dom.onDocument;
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrap;
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrapWithFlags;
 
@@ -9021,6 +9205,188 @@ var _elm_lang$html$Html$details = _elm_lang$html$Html$node('details');
 var _elm_lang$html$Html$summary = _elm_lang$html$Html$node('summary');
 var _elm_lang$html$Html$menuitem = _elm_lang$html$Html$node('menuitem');
 var _elm_lang$html$Html$menu = _elm_lang$html$Html$node('menu');
+var _elm_lang$mouse$Mouse_ops = _elm_lang$mouse$Mouse_ops || {};
+_elm_lang$mouse$Mouse_ops['&>'] = F2(
+	function (t1, t2) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (_p0) {
+				return t2;
+			},
+			t1);
+	});
+var _elm_lang$mouse$Mouse$onSelfMsg = F3(
+	function (router, _p1, state) {
+		var _p2 = _p1;
+		var _p3 = A2(_elm_lang$core$Dict$get, _p2.category, state);
+		if (_p3.ctor === 'Nothing') {
+			return _elm_lang$core$Task$succeed(state);
+		} else {
+			var send = function (tagger) {
+				return A2(
+					_elm_lang$core$Platform$sendToApp,
+					router,
+					tagger(_p2.position));
+			};
+			return A2(
+				_elm_lang$mouse$Mouse_ops['&>'],
+				_elm_lang$core$Task$sequence(
+					A2(_elm_lang$core$List$map, send, _p3._0.taggers)),
+				_elm_lang$core$Task$succeed(state));
+		}
+	});
+var _elm_lang$mouse$Mouse$init = _elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty);
+var _elm_lang$mouse$Mouse$categorizeHelpHelp = F2(
+	function (value, maybeValues) {
+		var _p4 = maybeValues;
+		if (_p4.ctor === 'Nothing') {
+			return _elm_lang$core$Maybe$Just(
+				{
+					ctor: '::',
+					_0: value,
+					_1: {ctor: '[]'}
+				});
+		} else {
+			return _elm_lang$core$Maybe$Just(
+				{ctor: '::', _0: value, _1: _p4._0});
+		}
+	});
+var _elm_lang$mouse$Mouse$categorizeHelp = F2(
+	function (subs, subDict) {
+		categorizeHelp:
+		while (true) {
+			var _p5 = subs;
+			if (_p5.ctor === '[]') {
+				return subDict;
+			} else {
+				var _v4 = _p5._1,
+					_v5 = A3(
+					_elm_lang$core$Dict$update,
+					_p5._0._0,
+					_elm_lang$mouse$Mouse$categorizeHelpHelp(_p5._0._1),
+					subDict);
+				subs = _v4;
+				subDict = _v5;
+				continue categorizeHelp;
+			}
+		}
+	});
+var _elm_lang$mouse$Mouse$categorize = function (subs) {
+	return A2(_elm_lang$mouse$Mouse$categorizeHelp, subs, _elm_lang$core$Dict$empty);
+};
+var _elm_lang$mouse$Mouse$subscription = _elm_lang$core$Native_Platform.leaf('Mouse');
+var _elm_lang$mouse$Mouse$Position = F2(
+	function (a, b) {
+		return {x: a, y: b};
+	});
+var _elm_lang$mouse$Mouse$position = A3(
+	_elm_lang$core$Json_Decode$map2,
+	_elm_lang$mouse$Mouse$Position,
+	A2(_elm_lang$core$Json_Decode$field, 'pageX', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'pageY', _elm_lang$core$Json_Decode$int));
+var _elm_lang$mouse$Mouse$Watcher = F2(
+	function (a, b) {
+		return {taggers: a, pid: b};
+	});
+var _elm_lang$mouse$Mouse$Msg = F2(
+	function (a, b) {
+		return {category: a, position: b};
+	});
+var _elm_lang$mouse$Mouse$onEffects = F3(
+	function (router, newSubs, oldState) {
+		var rightStep = F3(
+			function (category, taggers, task) {
+				var tracker = A3(
+					_elm_lang$dom$Dom_LowLevel$onDocument,
+					category,
+					_elm_lang$mouse$Mouse$position,
+					function (_p6) {
+						return A2(
+							_elm_lang$core$Platform$sendToSelf,
+							router,
+							A2(_elm_lang$mouse$Mouse$Msg, category, _p6));
+					});
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (state) {
+						return A2(
+							_elm_lang$core$Task$andThen,
+							function (pid) {
+								return _elm_lang$core$Task$succeed(
+									A3(
+										_elm_lang$core$Dict$insert,
+										category,
+										A2(_elm_lang$mouse$Mouse$Watcher, taggers, pid),
+										state));
+							},
+							_elm_lang$core$Process$spawn(tracker));
+					},
+					task);
+			});
+		var bothStep = F4(
+			function (category, _p7, taggers, task) {
+				var _p8 = _p7;
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (state) {
+						return _elm_lang$core$Task$succeed(
+							A3(
+								_elm_lang$core$Dict$insert,
+								category,
+								A2(_elm_lang$mouse$Mouse$Watcher, taggers, _p8.pid),
+								state));
+					},
+					task);
+			});
+		var leftStep = F3(
+			function (category, _p9, task) {
+				var _p10 = _p9;
+				return A2(
+					_elm_lang$mouse$Mouse_ops['&>'],
+					_elm_lang$core$Process$kill(_p10.pid),
+					task);
+			});
+		return A6(
+			_elm_lang$core$Dict$merge,
+			leftStep,
+			bothStep,
+			rightStep,
+			oldState,
+			_elm_lang$mouse$Mouse$categorize(newSubs),
+			_elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty));
+	});
+var _elm_lang$mouse$Mouse$MySub = F2(
+	function (a, b) {
+		return {ctor: 'MySub', _0: a, _1: b};
+	});
+var _elm_lang$mouse$Mouse$clicks = function (tagger) {
+	return _elm_lang$mouse$Mouse$subscription(
+		A2(_elm_lang$mouse$Mouse$MySub, 'click', tagger));
+};
+var _elm_lang$mouse$Mouse$moves = function (tagger) {
+	return _elm_lang$mouse$Mouse$subscription(
+		A2(_elm_lang$mouse$Mouse$MySub, 'mousemove', tagger));
+};
+var _elm_lang$mouse$Mouse$downs = function (tagger) {
+	return _elm_lang$mouse$Mouse$subscription(
+		A2(_elm_lang$mouse$Mouse$MySub, 'mousedown', tagger));
+};
+var _elm_lang$mouse$Mouse$ups = function (tagger) {
+	return _elm_lang$mouse$Mouse$subscription(
+		A2(_elm_lang$mouse$Mouse$MySub, 'mouseup', tagger));
+};
+var _elm_lang$mouse$Mouse$subMap = F2(
+	function (func, _p11) {
+		var _p12 = _p11;
+		return A2(
+			_elm_lang$mouse$Mouse$MySub,
+			_p12._0,
+			function (_p13) {
+				return func(
+					_p12._1(_p13));
+			});
+	});
+_elm_lang$core$Native_Platform.effectManagers['Mouse'] = {pkg: 'elm-lang/mouse', init: _elm_lang$mouse$Mouse$init, onEffects: _elm_lang$mouse$Mouse$onEffects, onSelfMsg: _elm_lang$mouse$Mouse$onSelfMsg, tag: 'sub', subMap: _elm_lang$mouse$Mouse$subMap};
 var _evancz$elm_graphics$Native_Element = function()
 {
 
@@ -11516,14 +11882,16 @@ var _user$project$Vector$sum = A2(
 	_elm_lang$core$List$foldr,
 	_user$project$Vector$add,
 	{ctor: '_Tuple2', _0: 0, _1: 0});
+var _user$project$Model$scoreboardSpacing = {ctor: '_Tuple2', _0: 0, _1: 15};
+var _user$project$Model$scoreboardPos = {ctor: '_Tuple2', _0: -400, _1: 465};
 var _user$project$Model$particleMaxLifetime = 5;
 var _user$project$Model$pixelsPerSecond = 1 / _elm_lang$core$Time$second;
 var _user$project$Model$maxSpeed = 50000 * _user$project$Model$pixelsPerSecond;
 var _user$project$Model$g = 1.0e-2;
-var _user$project$Model$overpopulationTimer = 10 * _elm_lang$core$Time$second;
-var _user$project$Model$Model = F2(
-	function (a, b) {
-		return {sticks: a, planets: b};
+var _user$project$Model$overpopulationTimer = 2 * _elm_lang$core$Time$second;
+var _user$project$Model$Model = F5(
+	function (a, b, c, d, e) {
+		return {particles: a, sticks: b, planets: c, score: d, deltaScore: e};
 	});
 var _user$project$Model$Stick = F3(
 	function (a, b, c) {
@@ -11536,17 +11904,52 @@ var _user$project$Model$Particle = F3(
 var _user$project$Model$Planet = function (a) {
 	return {ctor: 'Planet', _0: a};
 };
+var _user$project$Util$maybeToList = function (m) {
+	var _p0 = m;
+	if (_p0.ctor === 'Nothing') {
+		return {ctor: '[]'};
+	} else {
+		return {
+			ctor: '::',
+			_0: _p0._0,
+			_1: {ctor: '[]'}
+		};
+	}
+};
+var _user$project$Util$right = function (either) {
+	var _p1 = either;
+	if (_p1.ctor === 'Left') {
+		return _elm_lang$core$Maybe$Nothing;
+	} else {
+		return _elm_lang$core$Maybe$Just(_p1._0);
+	}
+};
+var _user$project$Util$left = function (either) {
+	var _p2 = either;
+	if (_p2.ctor === 'Left') {
+		return _elm_lang$core$Maybe$Just(_p2._0);
+	} else {
+		return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Util$split = F2(
+	function (xs, f) {
+		var eithers = A2(_elm_lang$core$List$map, f, xs);
+		var ls = A2(_elm_lang$core$List$filterMap, _user$project$Util$left, eithers);
+		var rs = A2(_elm_lang$core$List$filterMap, _user$project$Util$right, eithers);
+		return {ctor: '_Tuple2', _0: ls, _1: rs};
+	});
 var _user$project$Util$find = function (p) {
-	return function (_p0) {
+	return function (_p3) {
 		return _elm_lang$core$List$head(
-			A2(_elm_lang$core$List$filter, p, _p0));
+			A2(_elm_lang$core$List$filter, p, _p3));
 	};
 };
 var _user$project$Util$collisionAngle = F2(
 	function (a, b) {
-		var _p1 = A2(_user$project$Vector_ops['.-'], b.pos, a.pos);
-		var dx = _p1._0;
-		var dy = _p1._1;
+		var _p4 = A2(_user$project$Vector_ops['.-'], b.pos, a.pos);
+		var dx = _p4._0;
+		var dy = _p4._1;
 		return (_elm_lang$core$Native_Utils.cmp(
 			_user$project$Vector$norm(
 				{ctor: '_Tuple2', _0: dx, _1: dy}),
@@ -11580,25 +11983,25 @@ var _user$project$Util$planetStickCollisionAngle = F2(
 			{pos: stick.pos, radius: 5});
 	});
 var _user$project$Util$stickPlanetCollision = F2(
-	function (stick, _p2) {
-		var _p3 = _p2;
-		var _p4 = _p3._0;
+	function (stick, _p5) {
+		var _p6 = _p5;
+		var _p7 = _p6._0;
 		return A2(
 			_user$project$Util$collision,
 			{
-				pos: _user$project$Util$planetPos(_p4),
-				radius: _p4.radius
+				pos: _user$project$Util$planetPos(_p7),
+				radius: _p7.radius
 			},
 			{pos: stick.pos, radius: 5});
 	});
 var _user$project$Util$gravity = F2(
-	function (p, _p5) {
-		var _p6 = _p5;
-		var _p7 = _p6._0;
-		var acc = (_user$project$Model$g * _p7.mass) / Math.pow(
+	function (p, _p8) {
+		var _p9 = _p8;
+		var _p10 = _p9._0;
+		var acc = (_user$project$Model$g * _p10.mass) / Math.pow(
 			A2(
 				_user$project$Vector$dist,
-				_user$project$Util$planetPos(_p7),
+				_user$project$Util$planetPos(_p10),
 				p),
 			2);
 		return A2(
@@ -11607,17 +12010,40 @@ var _user$project$Util$gravity = F2(
 			_user$project$Vector$normalize(
 				A2(
 					_user$project$Vector_ops['.-'],
-					_user$project$Util$planetPos(_p7),
+					_user$project$Util$planetPos(_p10),
 					p)));
 	});
+var _user$project$Util$Right = function (a) {
+	return {ctor: 'Right', _0: a};
+};
+var _user$project$Util$Left = function (a) {
+	return {ctor: 'Left', _0: a};
+};
 var _user$project$Update$updateStick = F3(
 	function (dt, planets, stick) {
 		var newAngle = stick.angle + 0.1;
-		var acc = _user$project$Vector$sum(
+		var acc = A2(
+			_user$project$Vector_ops['.+'],
+			_user$project$Vector$sum(
+				A2(
+					_elm_lang$core$List$map,
+					_user$project$Util$gravity(stick.pos),
+					planets)),
 			A2(
-				_elm_lang$core$List$map,
-				_user$project$Util$gravity(stick.pos),
-				planets));
+				_user$project$Util$gravity,
+				stick.pos,
+				_user$project$Model$Planet(
+					{
+						radius: 2,
+						mass: 200,
+						orbitalRadius: 0,
+						orbitalAngle: 0,
+						orbitalPeriod: 0 * _elm_lang$core$Time$second,
+						maxPopulation: 0,
+						inhabitants: {ctor: '[]'},
+						overpopulated: _elm_lang$core$Maybe$Nothing,
+						textString: 'Star'
+					})));
 		var newVel = A3(
 			_user$project$Vector$clamp,
 			_elm_lang$core$Basics$negate(_user$project$Model$maxSpeed),
@@ -11630,101 +12056,270 @@ var _user$project$Update$updateStick = F3(
 			_user$project$Vector_ops['.+'],
 			stick.pos,
 			A2(_user$project$Vector$scale, dt, newVel));
-		return A2(
+		return (A2(
 			_elm_lang$core$List$any,
 			_user$project$Util$stickPlanetCollision(stick),
-			planets) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(
+			planets) || ((_elm_lang$core$Native_Utils.cmp(
+			A2(
+				_user$project$Vector$dist,
+				stick.pos,
+				{ctor: '_Tuple2', _0: 0, _1: 0}),
+			20) < 1) || (_elm_lang$core$Native_Utils.cmp(
+			A2(
+				_user$project$Vector$dist,
+				stick.pos,
+				{ctor: '_Tuple2', _0: 0, _1: 0}),
+			1000) > -1))) ? _user$project$Util$Right(stick.pos) : _user$project$Util$Left(
 			_elm_lang$core$Native_Utils.update(
 				stick,
 				{vel: newVel, pos: newPos, angle: newAngle}));
 	});
-var _user$project$Update$updatePlanet = F3(
-	function (dt, sticks, _p0) {
+var _user$project$Update$updateParticle = F2(
+	function (dt, particle) {
+		var newLifetime = particle.lifetime - dt;
+		var newPos = A2(
+			_user$project$Vector_ops['.+'],
+			particle.pos,
+			A2(_user$project$Vector$scale, dt, particle.vel));
+		var newVel = particle.vel;
+		return (_elm_lang$core$Native_Utils.cmp(newLifetime, 0) > -1) ? _elm_lang$core$Maybe$Just(
+			{pos: newPos, vel: newVel, lifetime: newLifetime}) : _elm_lang$core$Maybe$Nothing;
+	});
+var _user$project$Update$generateParticle = function (genPos) {
+	var randomVel = A2(
+		_elm_lang$core$Random$pair,
+		A2(_elm_lang$core$Random$float, -0.1, 0.1),
+		A2(_elm_lang$core$Random$float, -0.1, 0.1));
+	var mkParticle = function (vel) {
+		return {pos: genPos, vel: vel, lifetime: 0.5 * _elm_lang$core$Time$second};
+	};
+	return A2(_elm_lang$core$Random$map, mkParticle, randomVel);
+};
+var _user$project$Update$createExplosion = F2(
+	function (numParticles, pos) {
+		return _elm_lang$core$Tuple$first(
+			A2(
+				_elm_lang$core$Random$step,
+				A2(
+					_elm_lang$core$Random$list,
+					numParticles,
+					_user$project$Update$generateParticle(pos)),
+				_elm_lang$core$Random$initialSeed(0)));
+	});
+var _user$project$Update$inhabitantPos = F3(
+	function (pos, radius, angle) {
+		return A2(
+			_user$project$Vector_ops['.+'],
+			A2(
+				_user$project$Vector$scale,
+				5 + radius,
+				{
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Basics$cos(angle),
+					_1: _elm_lang$core$Basics$sin(angle)
+				}),
+			pos);
+	});
+var _user$project$Update$flickInhabitant = F2(
+	function (p, _p0) {
 		var _p1 = _p0;
-		var _p6 = _p1._0;
+		var _p3 = _p1._0;
+		var angleToStick = function (angle) {
+			var p = A3(
+				_user$project$Update$inhabitantPos,
+				_user$project$Util$planetPos(_p3),
+				_p3.radius,
+				angle);
+			var dir = _user$project$Vector$normalize(
+				A2(
+					_user$project$Vector_ops['.-'],
+					p,
+					_user$project$Util$planetPos(_p3)));
+			return {
+				pos: A2(
+					_user$project$Vector_ops['.+'],
+					A2(_user$project$Vector$scale, 20, dir),
+					p),
+				vel: A2(_user$project$Vector$scale, 600 * _user$project$Model$pixelsPerSecond, dir),
+				angle: angle
+			};
+		};
+		var _p2 = A2(
+			_elm_lang$core$List$partition,
+			function (angle) {
+				return _elm_lang$core$Native_Utils.cmp(
+					A2(
+						_user$project$Vector$dist,
+						A3(
+							_user$project$Update$inhabitantPos,
+							_user$project$Util$planetPos(_p3),
+							_p3.radius,
+							angle),
+						p),
+					10) < 1;
+			},
+			_p3.inhabitants);
+		var flicked = _p2._0;
+		var remaining = _p2._1;
+		return {
+			ctor: '_Tuple2',
+			_0: _user$project$Model$Planet(
+				_elm_lang$core$Native_Utils.update(
+					_p3,
+					{inhabitants: remaining})),
+			_1: A2(_elm_lang$core$List$map, angleToStick, flicked)
+		};
+	});
+var _user$project$Update$updatePlanet = F3(
+	function (dt, sticks, _p4) {
+		var _p5 = _p4;
+		var _p10 = _p5._0;
 		var collidingSticks = A2(
 			_elm_lang$core$List$filterMap,
-			_user$project$Util$planetStickCollisionAngle(_p6),
+			_user$project$Util$planetStickCollisionAngle(_p10),
 			sticks);
-		var potentialNewInhabitants = A2(_elm_lang$core$Basics_ops['++'], _p6.inhabitants, collidingSticks);
-		var _p2 = function () {
-			var _p3 = {
+		var potentialNewInhabitants = A2(_elm_lang$core$Basics_ops['++'], _p10.inhabitants, collidingSticks);
+		var _p6 = function () {
+			var _p7 = {
 				ctor: '_Tuple2',
-				_0: _p6.overpopulated,
+				_0: _p10.overpopulated,
 				_1: _elm_lang$core$Native_Utils.cmp(
 					_elm_lang$core$List$length(potentialNewInhabitants),
-					_p6.maxPopulation) > -1
+					_p10.maxPopulation) > -1
 			};
-			if (_p3._1 === true) {
-				if (_p3._0.ctor === 'Nothing') {
+			if (_p7._0.ctor === 'Nothing') {
+				if (_p7._1 === true) {
 					return {
-						ctor: '_Tuple2',
+						ctor: '_Tuple4',
 						_0: {ctor: '[]'},
-						_1: _elm_lang$core$Maybe$Just(_user$project$Model$overpopulationTimer)
+						_1: _elm_lang$core$Maybe$Just(_user$project$Model$overpopulationTimer),
+						_2: {
+							ctor: '::',
+							_0: _user$project$Util$planetPos(_p10),
+							_1: {ctor: '[]'}
+						},
+						_3: '!!!'
 					};
 				} else {
 					return {
-						ctor: '_Tuple2',
-						_0: {ctor: '[]'},
-						_1: A2(
-							_elm_lang$core$Maybe$map,
-							function (t) {
-								return t - dt;
-							},
-							_p3._0)
+						ctor: '_Tuple4',
+						_0: potentialNewInhabitants,
+						_1: _p7._0,
+						_2: {ctor: '[]'},
+						_3: _elm_lang$core$Basics$toString(
+							_elm_lang$core$List$length(_p10.inhabitants))
 					};
 				}
 			} else {
-				if (_p3._0.ctor === 'Just') {
-					return {
-						ctor: '_Tuple2',
-						_0: {ctor: '[]'},
-						_1: _elm_lang$core$Maybe$Just(_p3._0._0 - dt)
-					};
-				} else {
-					return {ctor: '_Tuple2', _0: potentialNewInhabitants, _1: _p3._0};
-				}
+				return {
+					ctor: '_Tuple4',
+					_0: {ctor: '[]'},
+					_1: _elm_lang$core$Maybe$Just(_p7._0._0 - dt),
+					_2: {ctor: '[]'},
+					_3: '!!!'
+				};
 			}
 		}();
-		var newInhabitants = _p2._0;
-		var newOverpopulated = _p2._1;
-		var newOrbitalAngle = _p6.orbitalAngle + (((dt * 2) * _elm_lang$core$Basics$pi) / _p6.orbitalPeriod);
-		return _user$project$Model$Planet(
-			_elm_lang$core$Native_Utils.update(
-				_p6,
-				{
-					orbitalAngle: (_elm_lang$core$Native_Utils.cmp(newOrbitalAngle, 2 * _elm_lang$core$Basics$pi) > -1) ? (newOrbitalAngle - (2 * _elm_lang$core$Basics$pi)) : newOrbitalAngle,
-					inhabitants: newInhabitants,
-					overpopulated: function () {
-						var _p4 = newOverpopulated;
-						if (_p4.ctor === 'Just') {
-							var _p5 = _p4._0;
-							return (_elm_lang$core$Native_Utils.cmp(_p5, 0) < 1) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p5);
-						} else {
-							return _p4;
-						}
-					}()
-				}));
+		var newInhabitants = _p6._0;
+		var newOverpopulated = _p6._1;
+		var explodingPoints = _p6._2;
+		var newTextString = _p6._3;
+		var newOrbitalAngle = _p10.orbitalAngle + (((dt * 2) * _elm_lang$core$Basics$pi) / _p10.orbitalPeriod);
+		return {
+			ctor: '_Tuple2',
+			_0: _user$project$Model$Planet(
+				_elm_lang$core$Native_Utils.update(
+					_p10,
+					{
+						orbitalAngle: (_elm_lang$core$Native_Utils.cmp(newOrbitalAngle, 2 * _elm_lang$core$Basics$pi) > -1) ? (newOrbitalAngle - (2 * _elm_lang$core$Basics$pi)) : newOrbitalAngle,
+						inhabitants: newInhabitants,
+						overpopulated: function () {
+							var _p8 = newOverpopulated;
+							if (_p8.ctor === 'Just') {
+								var _p9 = _p8._0;
+								return (_elm_lang$core$Native_Utils.cmp(_p9, 0) < 1) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p9);
+							} else {
+								return _p8;
+							}
+						}(),
+						textString: newTextString
+					})),
+			_1: explodingPoints
+		};
 	});
 var _user$project$Update$updateHelp = F2(
 	function (msg, model) {
-		var _p7 = msg;
-		if (_p7.ctor === 'Reset') {
-			return model;
-		} else {
-			var _p8 = _p7._0;
-			return _elm_lang$core$Native_Utils.update(
-				model,
-				{
-					sticks: A2(
-						_elm_lang$core$List$filterMap,
-						A2(_user$project$Update$updateStick, _p8, model.planets),
-						model.sticks),
-					planets: A2(
+		var _p11 = msg;
+		switch (_p11.ctor) {
+			case 'Reset':
+				return model;
+			case 'Second':
+				return _elm_lang$core$Native_Utils.update(
+					model,
+					{score: model.score + model.deltaScore});
+			case 'Tick':
+				var _p16 = _p11._0;
+				var _p12 = _elm_lang$core$List$unzip(
+					A2(
 						_elm_lang$core$List$map,
-						A2(_user$project$Update$updatePlanet, _p8, model.sticks),
-						model.planets)
-				});
+						A2(_user$project$Update$updatePlanet, _p16, model.sticks),
+						model.planets));
+				var newPlanets = _p12._0;
+				var planetPoints = _p12._1;
+				var newPlanetParticles = A2(
+					_elm_lang$core$List$map,
+					_user$project$Update$createExplosion(100),
+					_elm_lang$core$List$concat(planetPoints));
+				var _p13 = A2(
+					_user$project$Util$split,
+					model.sticks,
+					A2(_user$project$Update$updateStick, _p16, model.planets));
+				var newSticks = _p13._0;
+				var points = _p13._1;
+				var newStickParticles = A2(
+					_elm_lang$core$List$map,
+					_user$project$Update$createExplosion(1),
+					points);
+				var newParticles = _elm_lang$core$List$concat(
+					A2(_elm_lang$core$Basics_ops['++'], newStickParticles, newPlanetParticles));
+				return _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						particles: A2(
+							_elm_lang$core$Basics_ops['++'],
+							A2(
+								_elm_lang$core$List$filterMap,
+								_user$project$Update$updateParticle(_p16),
+								model.particles),
+							newParticles),
+						sticks: newSticks,
+						planets: newPlanets,
+						deltaScore: _elm_lang$core$List$sum(
+							A2(
+								_elm_lang$core$List$map,
+								function (_p14) {
+									var _p15 = _p14;
+									return _elm_lang$core$List$length(_p15._0.inhabitants);
+								},
+								model.planets))
+					});
+			default:
+				var _p17 = _elm_lang$core$List$unzip(
+					A2(
+						_elm_lang$core$List$map,
+						_user$project$Update$flickInhabitant(_p11._0),
+						model.planets));
+				var newPlanets = _p17._0;
+				var flickedSticks = _p17._1;
+				return _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						planets: newPlanets,
+						sticks: A2(
+							_elm_lang$core$Basics_ops['++'],
+							model.sticks,
+							_elm_lang$core$List$concat(flickedSticks))
+					});
 		}
 	});
 var _user$project$Update$update = F2(
@@ -11735,10 +12330,25 @@ var _user$project$Update$update = F2(
 			_1: _elm_lang$core$Platform_Cmd$none
 		};
 	});
+var _user$project$Update$Second = function (a) {
+	return {ctor: 'Second', _0: a};
+};
+var _user$project$Update$Flick = function (a) {
+	return {ctor: 'Flick', _0: a};
+};
 var _user$project$Update$Tick = function (a) {
 	return {ctor: 'Tick', _0: a};
 };
 var _user$project$Update$Reset = {ctor: 'Reset'};
+var _user$project$View$drawParticle = function (particle) {
+	return A2(
+		_evancz$elm_graphics$Collage$move,
+		particle.pos,
+		A2(
+			_evancz$elm_graphics$Collage$filled,
+			A3(_elm_lang$core$Color$hsl, particle.lifetime, 1, 0.5),
+			_evancz$elm_graphics$Collage$circle(1)));
+};
 var _user$project$View$drawStickFigure = function (angle) {
 	return A2(
 		_evancz$elm_graphics$Collage$rotate,
@@ -11852,14 +12462,22 @@ var _user$project$View$drawPlanet = function (_p0) {
 		_evancz$elm_graphics$Collage$move,
 		pos,
 		_evancz$elm_graphics$Collage$group(
-			{
-				ctor: '::',
-				_0: A2(
-					_evancz$elm_graphics$Collage$filled,
-					A3(_elm_lang$core$Color$hsl, hue, 1, 0.5),
-					_evancz$elm_graphics$Collage$circle(_p3.radius)),
-				_1: A2(_elm_lang$core$List$map, drawInhabitant, _p3.inhabitants)
-			}));
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				{
+					ctor: '::',
+					_0: A2(
+						_evancz$elm_graphics$Collage$filled,
+						A3(_elm_lang$core$Color$hsl, hue, 1, 0.5),
+						_evancz$elm_graphics$Collage$circle(_p3.radius)),
+					_1: {
+						ctor: '::',
+						_0: _evancz$elm_graphics$Collage$text(
+							_evancz$elm_graphics$Text$fromString(_p3.textString)),
+						_1: {ctor: '[]'}
+					}
+				},
+				A2(_elm_lang$core$List$map, drawInhabitant, _p3.inhabitants))));
 };
 var _user$project$View$drawStick = function (stick) {
 	return A2(
@@ -11870,8 +12488,105 @@ var _user$project$View$drawStick = function (stick) {
 var _user$project$View$view = function (model) {
 	var entities = A2(
 		_elm_lang$core$Basics_ops['++'],
-		A2(_elm_lang$core$List$map, _user$project$View$drawStick, model.sticks),
-		A2(_elm_lang$core$List$map, _user$project$View$drawPlanet, model.planets));
+		{
+			ctor: '::',
+			_0: A2(
+				_evancz$elm_graphics$Collage$move,
+				{ctor: '_Tuple2', _0: 0, _1: 0},
+				A2(
+					_evancz$elm_graphics$Collage$filled,
+					A3(_elm_lang$core$Color$hsl, 1, 1, 0.4),
+					_evancz$elm_graphics$Collage$circle(15))),
+			_1: {ctor: '[]'}
+		},
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			A2(_elm_lang$core$List$map, _user$project$View$drawStick, model.sticks),
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				A2(_elm_lang$core$List$map, _user$project$View$drawPlanet, model.planets),
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					A2(_elm_lang$core$List$map, _user$project$View$drawParticle, model.particles),
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						{
+							ctor: '::',
+							_0: A2(
+								_evancz$elm_graphics$Collage$move,
+								{ctor: '_Tuple2', _0: 450, _1: 450},
+								_evancz$elm_graphics$Collage$text(
+									_evancz$elm_graphics$Text$fromString(
+										_elm_lang$core$Basics$toString(model.score)))),
+							_1: {ctor: '[]'}
+						},
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							{
+								ctor: '::',
+								_0: A2(
+									_evancz$elm_graphics$Collage$move,
+									_user$project$Model$scoreboardPos,
+									_evancz$elm_graphics$Collage$text(
+										_evancz$elm_graphics$Text$fromString('Current score: '))),
+								_1: {ctor: '[]'}
+							},
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								{
+									ctor: '::',
+									_0: A2(
+										_evancz$elm_graphics$Collage$move,
+										A2(_user$project$Vector$sub, _user$project$Model$scoreboardPos, _user$project$Model$scoreboardSpacing),
+										_evancz$elm_graphics$Collage$text(
+											_evancz$elm_graphics$Text$fromString(
+												_elm_lang$core$Basics$toString(model.score)))),
+									_1: {ctor: '[]'}
+								},
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									{
+										ctor: '::',
+										_0: A2(
+											_evancz$elm_graphics$Collage$move,
+											A2(
+												_user$project$Vector$sub,
+												_user$project$Model$scoreboardPos,
+												A2(_user$project$Vector$scale, 2, _user$project$Model$scoreboardSpacing)),
+											_evancz$elm_graphics$Collage$text(
+												_evancz$elm_graphics$Text$fromString('Every second you get:'))),
+										_1: {ctor: '[]'}
+									},
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										{
+											ctor: '::',
+											_0: A2(
+												_evancz$elm_graphics$Collage$move,
+												A2(
+													_user$project$Vector$sub,
+													_user$project$Model$scoreboardPos,
+													A2(_user$project$Vector$scale, 3, _user$project$Model$scoreboardSpacing)),
+												_evancz$elm_graphics$Collage$text(
+													_evancz$elm_graphics$Text$fromString(
+														A2(
+															_elm_lang$core$Basics_ops['++'],
+															'+',
+															_elm_lang$core$Basics$toString(model.deltaScore))))),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: A2(
+												_evancz$elm_graphics$Collage$move,
+												A2(
+													_user$project$Vector$sub,
+													_user$project$Model$scoreboardPos,
+													A2(_user$project$Vector$scale, 4, _user$project$Model$scoreboardSpacing)),
+												_evancz$elm_graphics$Collage$text(
+													_evancz$elm_graphics$Text$fromString('from the inhabitants of your planets!'))),
+											_1: {ctor: '[]'}
+										})))))))));
 	return A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
@@ -11882,20 +12597,56 @@ var _user$project$View$view = function (model) {
 			_1: {ctor: '[]'}
 		});
 };
+var _user$project$Main$secondSubscription = A2(_elm_lang$core$Time$every, _elm_lang$core$Time$second, _user$project$Update$Second);
+var _user$project$Main$positionToPoint = function (_p0) {
+	var _p1 = _p0;
+	return {
+		ctor: '_Tuple2',
+		_0: _elm_lang$core$Basics$toFloat(_p1.x) - 500,
+		_1: 500 - _elm_lang$core$Basics$toFloat(_p1.y)
+	};
+};
 var _user$project$Main$maxDiffLength = 20 * _elm_lang$core$Time$millisecond;
 var _user$project$Main$subscriptions = function (model) {
-	return _elm_lang$animation_frame$AnimationFrame$diffs(
-		function (_p0) {
-			return _user$project$Update$Tick(
-				A2(_elm_lang$core$Basics$min, _user$project$Main$maxDiffLength, _p0));
+	return _elm_lang$core$Platform_Sub$batch(
+		{
+			ctor: '::',
+			_0: _elm_lang$animation_frame$AnimationFrame$diffs(
+				function (_p2) {
+					return _user$project$Update$Tick(
+						A2(_elm_lang$core$Basics$min, _user$project$Main$maxDiffLength, _p2));
+				}),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$mouse$Mouse$clicks(
+					function (_p3) {
+						return _user$project$Update$Flick(
+							_user$project$Main$positionToPoint(_p3));
+					}),
+				_1: {
+					ctor: '::',
+					_0: _user$project$Main$secondSubscription,
+					_1: {ctor: '[]'}
+				}
+			}
 		});
+};
+var _user$project$Main$generateParticle = function (genPos) {
+	var randomVel = A2(
+		_elm_lang$core$Random$pair,
+		A2(_elm_lang$core$Random$float, -1, 1),
+		A2(_elm_lang$core$Random$float, -1, 1));
+	var mkParticle = function (vel) {
+		return {pos: genPos, vel: vel, lifetime: 0.5 * _elm_lang$core$Time$second};
+	};
+	return A2(_elm_lang$core$Random$map, mkParticle, randomVel);
 };
 var _user$project$Main$randomStick = function () {
 	var randomAngle = A2(_elm_lang$core$Random$float, 0, 2 * _elm_lang$core$Basics$pi);
 	var randomVel = function () {
-		var _p1 = {ctor: '_Tuple2', _0: -1 * _user$project$Model$pixelsPerSecond, _1: 1 * _user$project$Model$pixelsPerSecond};
-		var low = _p1._0;
-		var high = _p1._1;
+		var _p4 = {ctor: '_Tuple2', _0: -1 * _user$project$Model$pixelsPerSecond, _1: 1 * _user$project$Model$pixelsPerSecond};
+		var low = _p4._0;
+		var high = _p4._1;
 		return A2(
 			_elm_lang$core$Random$pair,
 			A2(_elm_lang$core$Random$float, low, high),
@@ -11912,10 +12663,19 @@ var _user$project$Main$randomStick = function () {
 	return A4(_elm_lang$core$Random$map3, mkStick, randomPos, randomVel, randomAngle);
 }();
 var _user$project$Main$initialModel = {
+	particles: _elm_lang$core$Tuple$first(
+		A2(
+			_elm_lang$core$Random$step,
+			A2(
+				_elm_lang$core$Random$list,
+				0,
+				_user$project$Main$generateParticle(
+					{ctor: '_Tuple2', _0: 0, _1: 0})),
+			_elm_lang$core$Random$initialSeed(0))),
 	sticks: _elm_lang$core$Tuple$first(
 		A2(
 			_elm_lang$core$Random$step,
-			A2(_elm_lang$core$Random$list, 200, _user$project$Main$randomStick),
+			A2(_elm_lang$core$Random$list, 100, _user$project$Main$randomStick),
 			_elm_lang$core$Random$initialSeed(0))),
 	planets: {
 		ctor: '::',
@@ -11923,12 +12683,13 @@ var _user$project$Main$initialModel = {
 			{
 				radius: 20,
 				mass: 1000,
-				orbitalRadius: 200,
+				orbitalRadius: 300,
 				orbitalAngle: 0,
 				orbitalPeriod: 50 * _elm_lang$core$Time$second,
 				maxPopulation: 10,
 				inhabitants: {ctor: '[]'},
-				overpopulated: _elm_lang$core$Maybe$Nothing
+				overpopulated: _elm_lang$core$Maybe$Nothing,
+				textString: 'Test'
 			}),
 		_1: {
 			ctor: '::',
@@ -11936,16 +12697,49 @@ var _user$project$Main$initialModel = {
 				{
 					radius: 15,
 					mass: 500,
-					orbitalRadius: 100,
+					orbitalRadius: 150,
 					orbitalAngle: 3,
 					orbitalPeriod: 20 * _elm_lang$core$Time$second,
-					maxPopulation: 100,
+					maxPopulation: 10,
 					inhabitants: {ctor: '[]'},
-					overpopulated: _elm_lang$core$Maybe$Nothing
+					overpopulated: _elm_lang$core$Maybe$Nothing,
+					textString: 'Test'
 				}),
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: _user$project$Model$Planet(
+					{
+						radius: 5,
+						mass: 50,
+						orbitalRadius: 50,
+						orbitalAngle: 4,
+						orbitalPeriod: 3 * _elm_lang$core$Time$second,
+						maxPopulation: 5,
+						inhabitants: {ctor: '[]'},
+						overpopulated: _elm_lang$core$Maybe$Nothing,
+						textString: 'Test'
+					}),
+				_1: {
+					ctor: '::',
+					_0: _user$project$Model$Planet(
+						{
+							radius: 10,
+							mass: 250,
+							orbitalRadius: 400,
+							orbitalAngle: 2,
+							orbitalPeriod: 40 * _elm_lang$core$Time$second,
+							maxPopulation: 10,
+							inhabitants: {ctor: '[]'},
+							overpopulated: _elm_lang$core$Maybe$Nothing,
+							textString: 'Test'
+						}),
+					_1: {ctor: '[]'}
+				}
+			}
 		}
-	}
+	},
+	score: 0,
+	deltaScore: 0
 };
 var _user$project$Main$main = _elm_lang$html$Html$program(
 	{
