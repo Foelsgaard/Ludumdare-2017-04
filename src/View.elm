@@ -2,7 +2,7 @@ module View exposing (..)
 
 import Util exposing (..)
 import Model exposing (..)
-import Vector
+import Vector exposing (Point)
 import Text exposing (..)
 
 import Collage
@@ -61,7 +61,21 @@ view model =
             List.map drawStick model.sticks
             ++ List.map drawPlanet model.planets
             ++ List.map drawParticle model.particles
+            ++ maybeToList (Maybe.map drawDrag model.dragging)
 
     in Html.div []
         [ Collage.collage 1000 1000 entities |> Element.toHtml
         ]
+
+drawDrag : (Point, Point) -> Collage.Form
+drawDrag (p1, p2) =
+    let linestyle =
+            { color = Color.blue
+            , width = 3
+            , cap   = Collage.Flat
+            , join  = Collage.Smooth
+            , dashing = []
+            , dashOffset = 0
+            }
+        path = Collage.segment p1 p2
+    in Collage.traced linestyle path

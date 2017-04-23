@@ -11,6 +11,8 @@ import AnimationFrame
 import Html
 import Dict
 import Random exposing (Generator)
+import Platform.Sub
+import Mouse
 
 -- Main function
 
@@ -23,11 +25,11 @@ main = Html.program
 
 initialModel =
     { particles = Random.step
-                  (Random.list 300 (generateParticle (0,0)))
+                  (Random.list 0 (generateParticle (0,0)))
                   (Random.initialSeed 0)
     |> Tuple.first
     , sticks = Random.step
-               (Random.list 200 randomStick)
+               (Random.list 10 randomStick)
                (Random.initialSeed 0)
     |> Tuple.first
     , planets =
@@ -52,6 +54,7 @@ initialModel =
                 , overpopulated = Nothing
                 }
           ]
+    , dragging = Nothing
     }
 
 randomStick : Generator Stick
@@ -73,7 +76,7 @@ randomStick =
         randomAngle = Random.float 0 (2*pi)
     in Random.map3 mkStick randomPos randomVel randomAngle
 
-generateParticle : Vector -> Generator Particle 
+generateParticle : Vector -> Generator Particle
 generateParticle genPos =
   let mkParticle vel =
       { pos = genPos
@@ -86,11 +89,29 @@ generateParticle genPos =
   in Random.map mkParticle randomVel
 
 --generateParticles : List Vector -> Generator (List Particle)
---generateParticles positions = 
+--generateParticles positions =
 
 -- SUBSCRIBTIONS
 
 maxDiffLength = 20 * Time.millisecond
 
 subscriptions model =
-    AnimationFrame.diffs (min maxDiffLength >> Tick)
+    Platform.Sub.batch
+        [ AnimationFrame.diffs (min maxDiffLength >> Tick)
+        , dragSubscription model
+        ]
+
+positionToPoint : Mouse.Position -> Point
+positionToPoint {x, y} = (toFloat x - 500, 500 - toFloat y)
+
+dragSubscription model =
+    let subs =
+            case model.dragging of
+                Nothing ->
+                    [ Mouse.downs (positionToPoint >> DragStart)
+                    ]
+                Just (p, _) ->
+                    [ Mouse.ups (\_ -> DragEnd)
+                    , Mouse.moves (positionToPoint >> Drag p)
+                    ]
+    in Platform.Sub.batch subs

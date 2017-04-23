@@ -1,6 +1,6 @@
 module Update exposing (..)
 
-import Vector exposing ((.+), (.-))
+import Vector exposing (Point, (.+), (.-))
 import Util exposing (..)
 import Model exposing (..)
 
@@ -45,8 +45,6 @@ updatePlanet dt sticks (Planet planet) =
                           op     -> op
               }
 
-type Message = Reset | Tick Time
-
 update : Message -> Model -> (Model, Cmd Message)
 update msg model =
     (updateHelp msg model, Cmd.none)
@@ -57,23 +55,37 @@ updateHelp msg model =
     Reset -> model
 
     Tick dt ->
-      let 
-        --newParticles = 
+      let
+        --newParticles =
         newSticks = List.filterMap (updateStick dt model.planets) model.sticks
       in { model
-            | particles = 
-                List.filterMap (updateParticle dt) model.particles 
+            | particles =
+                List.filterMap (updateParticle dt) model.particles
             , sticks=
-                newSticks              
+                newSticks
             , planets =
                 List.map (updatePlanet dt model.sticks) model.planets
         }
 
+    DragStart p ->
+        { model
+            | dragging = Just (p, p)
+        }
+
+    Drag p1 p2 ->
+        { model
+            | dragging = Just (p1, p2)
+        }
+
+    DragEnd ->
+        { model
+            | dragging = Nothing
+        }
 
 
 updateParticle : Time -> Particle -> Maybe Particle
 updateParticle dt particle =
-    let 
+    let
         newVel = particle.vel
         newPos = particle.pos .+ Vector.scale dt particle.vel
         newLifetime = particle.lifetime - dt
@@ -103,4 +115,10 @@ updateStick dt planets stick =
                      , pos = newPos
                      , angle = newAngle
                  }
-            
+
+type Message
+    = Reset
+    | Tick Time
+    | DragStart Point
+    | Drag Point Point
+    | DragEnd

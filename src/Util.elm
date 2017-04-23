@@ -74,3 +74,9 @@ split xs f =
         ls = List.filterMap left eithers
         rs = List.filterMap right eithers
     in (ls, rs)
+
+maybeToList : Maybe a -> List a
+maybeToList m =
+    case m of
+        Nothing -> []
+        Just x  -> [x]
