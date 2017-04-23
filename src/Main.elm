@@ -34,45 +34,56 @@ initialModel =
     |> Tuple.first
     , planets =
           [ Planet
-                { radius        = 20
-                , mass          = 1000
+                { radius        = 30
+                , mass          = 500
                 , orbitalRadius = 300
                 , orbitalAngle  = 0
-                , orbitalPeriod = 50 * Time.second
-                , maxPopulation = 10
+                , orbitalPeriod = 35 * Time.second
+                , maxPopulation = 15
                 , inhabitants   = []
                 , overpopulated = Nothing
                 , textString    = "Test"
                 }
           , Planet
-                { radius        = 15
-                , mass          = 500
-                , orbitalRadius = 200
+                { radius        = 24
+                , mass          = 300
+                , orbitalRadius = 250
                 , orbitalAngle  = 3
-                , orbitalPeriod = 20 * Time.second
-                , maxPopulation = 10
-                , inhabitants   = [0]
+                , orbitalPeriod = 30 * Time.second
+                , maxPopulation = 12
+                , inhabitants   = [pi * 0.5]
                 , overpopulated = Nothing
                 , textString    = "Test"
                 }
           , Planet
-                { radius        = 8
+                { radius        = 15
                 , mass          = 100
-                , orbitalRadius = 100
+                , orbitalRadius = 200
                 , orbitalAngle  = 4
-                , orbitalPeriod = 30 * Time.second
-                , maxPopulation = 5
+                , orbitalPeriod = 25 * Time.second
+                , maxPopulation = 7
+                , inhabitants   = []
+                , overpopulated = Nothing
+                , textString    = "Test"
+                }
+          , Planet
+                { radius        = 18
+                , mass          = 220
+                , orbitalRadius = 150
+                , orbitalAngle  = 9
+                , orbitalPeriod = 20 * Time.second
+                , maxPopulation = 10
                 , inhabitants   = []
                 , overpopulated = Nothing
                 , textString    = "Test"
                 }
           , Planet
                 { radius        = 10
-                , mass          = 250
-                , orbitalRadius = 400
-                , orbitalAngle  = 2
-                , orbitalPeriod = 40 * Time.second
-                , maxPopulation = 10
+                , mass          = 280
+                , orbitalRadius = 100
+                , orbitalAngle  = 1.5 * pi
+                , orbitalPeriod = 15 * Time.second
+                , maxPopulation = 5
                 , inhabitants   = []
                 , overpopulated = Nothing
                 , textString    = "Test"
@@ -83,6 +94,7 @@ initialModel =
     , seed = Random.initialSeed 0
     , untilPop = Time.second
     , timeElapsed = 0
+    , gameOver = False
     }
 
 randomStick : Generator Stick
@@ -127,5 +139,7 @@ subscriptions model =
         ]
 
 positionToPoint : Mouse.Position -> Point
-positionToPoint {x, y} = (toFloat x - 500, 500 - toFloat y)
+positionToPoint {x, y} = ( toFloat x - screenWidth * 0.5
+                         , screenHeight * 0.5 - toFloat y
+                         )
 

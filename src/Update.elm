@@ -25,7 +25,7 @@ updatePlanet dt sticks (Planet planet) =
         (newInhabitants, newOverpopulated, explodingPoints, newTextString, newMaxPopulation) =
             case ( planet.overpopulated
                  , List.length potentialNewInhabitants
-                     >= planet.maxPopulation
+                     > planet.maxPopulation
                  ) of
                 (Nothing, True) -> ( [], Just overpopulationTimer, [planetPos planet], "!!!", max (planet.maxPopulation-1) 0 )
                 (Just t, _) -> ( []
@@ -58,8 +58,8 @@ updatePlanet dt sticks (Planet planet) =
 
 update : Message -> Model -> (Model, Cmd Message)
 update msg model =
-    case msg of
-        Tick dt ->
+    case (model.gameOver, msg) of
+        (False, Tick dt) ->
             ( updateHelp msg model
             , if model.untilPop - dt <= 0
               then (List.concatMap popInhabitants model.planets
@@ -67,13 +67,13 @@ update msg model =
                    |> Cmd.batch)
               else Cmd.none
             )
-        msg -> (updateHelp msg model, Cmd.none)
+        (False, msg) -> (updateHelp msg model, Cmd.none)
+        (True, Tick dt) -> (updateHelp (Tick dt) model, Cmd.none)
+        _ -> (model, Cmd.none)
 
 updateHelp : Message -> Model -> Model
 updateHelp msg model =
   case msg of
-    Reset -> model
-
     Pop Nothing -> model
     Pop (Just stick) ->
         { model
@@ -95,6 +95,12 @@ updateHelp msg model =
             then model.score + model.deltaScore
             else model.score
 
+        gameOver = List.isEmpty newSticks
+                   && List.isEmpty
+                       (List.concatMap (\(Planet planet) ->
+                                            planet.inhabitants)
+                            model.planets)
+
       in { model
             | particles = 
                 List.filterMap (updateParticle dt) model.particles ++ newParticles
@@ -110,6 +116,7 @@ updateHelp msg model =
                  if pop
                  then model.untilPop - dt + Time.second
                  else model.untilPop - dt
+             , gameOver = gameOver
         }
     Flick p ->
         let (newPlanets, flickedSticks) =
@@ -140,7 +147,7 @@ flickInhabitant p (Planet planet) =
             let p = inhabitantPos (planetPos planet) planet.radius angle
                 dir = p .- planetPos planet |> Vector.normalize
             in { pos = Vector.scale 20 dir .+ p
-               , vel = Vector.scale (600 * pixelsPerSecond) dir
+               , vel = Vector.scale (400 * pixelsPerSecond) dir
                , angle = angle
                }
     in ( Planet { planet
@@ -162,7 +169,7 @@ popInhabitant planet angle =
                     |> Vector.rotate fuzz
             in if pops
                then Just { pos = Vector.scale 20 dir .+ p
-                         , vel = Vector.scale (300 * pixelsPerSecond) dir
+                         , vel = Vector.scale (150 * pixelsPerSecond) dir
                          , angle = angle
                          }
                else Nothing
@@ -235,7 +242,6 @@ updateStick dt planets stick =
                  }
 
 type Message
-    = Reset
-    | Tick Time
+    = Tick Time
     | Flick Point
     | Pop (Maybe Stick)

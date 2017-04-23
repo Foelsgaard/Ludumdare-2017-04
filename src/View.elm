@@ -3,8 +3,8 @@ module View exposing (..)
 import Util exposing (..)
 import Model exposing (..)
 import Vector exposing (Point)
-import Text exposing (..)
 
+import Text
 import Collage
 import Color
 import Html
@@ -50,10 +50,21 @@ drawPlanet (Planet planet) =
                                   / toFloat planet.maxPopulation)
                            |> clamp 0 (2 / 3 * pi)
                 Just t  -> 0.5 * 2 / 3 * pi * (1 - t / overpopulationTimer)
-    in  [ (Collage.filled (Color.hsl hue 1 0.5) (Collage.circle planet.radius))
-        , (Collage.text (Text.fromString planet.textString))] 
-        --, (Collage.text (Text.fromString (toString (List.length planet.inhabitants))))] 
-        ++ (List.map drawInhabitant planet.inhabitants)
+    in  (Collage.filled (Color.hsl hue 1 0.5) (Collage.circle planet.radius))
+        :: (Collage.text
+                (case planet.overpopulated of
+                    Nothing ->
+                        (Text.fromString
+                             (String.concat
+                                  [ toString (List.length planet.inhabitants)
+                                  , "/"
+                                  , toString planet.maxPopulation
+                                  ]
+                             ))
+                    Just _ -> Text.fromString "!!!"
+                )
+           )
+        :: (List.map drawInhabitant planet.inhabitants)
         |> Collage.group
         |> Collage.move pos
 
@@ -72,14 +83,7 @@ gradStar =
 view model =
     let entities =
 
-            --[Collage.filled (Color.hsl 1 1 0.4) (Collage.circle 50) |> Collage.move (0,0)] ++
-            --[Collage.filled (Color.hsl 1 1 0.4) (Collage.circle 15) |> Collage.move (0,0)] ++
-            --[Collage.filled (Color.hsl 0.9 1 0.4) (Collage.circle 13) |> Collage.move (0,0)] ++
-            --[Collage.filled (Color.hsl 0.7 1 0.4) (Collage.circle 11) |> Collage.move (0,0)] ++
-            --[Collage.filled (Color.hsl 0.5 1 0.4) (Collage.circle 9) |> Collage.move (0,0)] ++
-            --[Collage.filled (Color.hsl 0.3 1 0.4) (Collage.circle 7) |> Collage.move (0,0)] ++
-            --[Collage.filled (Color.hsl 0.1 1 0.4) (Collage.circle 5) |> Collage.move (0,0)] ++
-            [Collage.filled (Color.hsl (1.2*pi) 0.5 0.8) (Collage.rect 1000 1000) |> Collage.move (0,0)]
+            [Collage.filled (Color.hsl (1.2*pi) 0.5 0.8) (Collage.rect screenWidth screenHeight) |> Collage.move (0,0)]
             ++ [Collage.gradient gradStar (Collage.circle 200)|> Collage.move(0,0)]
             ++ List.map drawStick model.sticks
             ++ List.map drawPlanet model.planets
@@ -89,8 +93,36 @@ view model =
             ++ [(Collage.text (Text.fromString ("Every second you get:")) |> Collage.move (Vector.sub scoreboardPos (Vector.scale 2 scoreboardSpacing)))]
             ++ [(Collage.text (Text.fromString ("+"++(toString model.deltaScore))) |> Collage.move (Vector.sub scoreboardPos (Vector.scale 3 scoreboardSpacing)))]
             ++ [(Collage.text (Text.fromString ("from the inhabitants of your planets!")) |> Collage.move (Vector.sub scoreboardPos (Vector.scale 4 scoreboardSpacing)))]
-            ++ [(Collage.text (Text.fromString ("Seconds played: "++(toString model.timeElapsed))) |> Collage.move (Vector.sub scoreboardPos (Vector.scale 6 scoreboardSpacing)))]
+            ++ if model.gameOver
+               then [ Text.fromString "Game Over"
+                    |> Text.style
+                          { typeface = [ "Arial" ]
+                          , height = Just 40
+                          , color = Color.black
+                          , bold = True
+                          , italic = False
+                          , line = Nothing
+                          }
+                    |> Collage.text
+                    |> Collage.move (0, screenHeight * 0.3)
+                    ,  Text.fromString
+                        (String.concat
+                             [ "Final score: "
+                             , toString model.score
+                             ])
+                    |> Text.style
+                          { typeface = [ "Arial" ]
+                          , height = Just 40
+                          , color = Color.black
+                          , bold = True
+                          , italic = False
+                          , line = Nothing
+                          }
+                    |> Collage.text
+                    |> Collage.move (0, screenHeight * 0.2)
+                    ]
+               else []
 
     in Html.div []
-        [ Collage.collage 1000 1000 entities |> Element.toHtml
+        [ Collage.collage 1200 800 entities |> Element.toHtml
         ]

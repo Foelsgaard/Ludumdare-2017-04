@@ -19,6 +19,7 @@ type alias Model =
     , seed : Random.Seed
     , untilPop : Time
     , timeElapsed : Int
+    , gameOver : Bool
     }
 
 type alias Key = Int
@@ -58,7 +59,10 @@ pixelsPerSecond = 1 / Time.second
 
 particleMaxLifetime = 5
 
-scoreboardPos = (-400,465)
+screenWidth = 1200
+screenHeight = 800
+
+scoreboardPos = (screenWidth * -0.4 , screenHeight * 0.45)
 scoreboardSpacing = (0,15)
 
 stickColor = Color.black  -- (Color.hsl 0 0 0.5)
