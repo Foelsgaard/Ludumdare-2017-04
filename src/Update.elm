@@ -55,7 +55,10 @@ updateHelp msg model =
   case msg of
     Reset -> model
 
-    Second time -> {model | score = model.score+model.deltaScore}
+    Second time -> {model | 
+                      score = model.score+model.deltaScore
+                    , timeElapsed = model.timeElapsed + 1
+                    }
 
     Tick dt ->
       let

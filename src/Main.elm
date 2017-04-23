@@ -47,7 +47,7 @@ initialModel =
           , Planet
                 { radius        = 15
                 , mass          = 500
-                , orbitalRadius = 150
+                , orbitalRadius = 200
                 , orbitalAngle  = 3
                 , orbitalPeriod = 20 * Time.second
                 , maxPopulation = 10
@@ -56,11 +56,11 @@ initialModel =
                 , textString    = "Test"
                 }
           , Planet
-                { radius        = 5
-                , mass          = 50
-                , orbitalRadius = 50
+                { radius        = 8
+                , mass          = 100
+                , orbitalRadius = 100
                 , orbitalAngle  = 4
-                , orbitalPeriod = 3 * Time.second
+                , orbitalPeriod = 30 * Time.second
                 , maxPopulation = 5
                 , inhabitants   = []
                 , overpopulated = Nothing
@@ -80,6 +80,7 @@ initialModel =
           ]
     , score = 0
     , deltaScore = 0
+    , timeElapsed = 0
     }
 
 randomStick : Generator Stick
