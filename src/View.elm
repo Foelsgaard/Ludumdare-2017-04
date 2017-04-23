@@ -11,15 +11,27 @@ import Element
 import Dict
 
 drawStick : Stick -> Collage.Form
-drawStick stick =
-    Collage.filled Color.green (Collage.circle 5)
-                |> Collage.move stick.pos
+drawStick stick = 
+            drawStickFigure stick.angle
+             |> Collage.move stick.pos
+
+drawStickFigure : Float -> Collage.Form
+drawStickFigure angle =
+        Collage.group   [ Collage.filled Color.black (Collage.circle 3) |> Collage.move (0,3)
+                    , Collage.filled Color.black (Collage.rect 2 10)
+                    , Collage.filled Color.black (Collage.rect 2 5) |> Collage.rotate (degrees 25) |> Collage.move (1,-7)
+                    , Collage.filled Color.black (Collage.rect 2 5) |> Collage.rotate (degrees -25) |> Collage.move (-1,-7)
+                    , Collage.filled Color.black (Collage.rect 2 4) |> Collage.rotate (degrees 65) |> Collage.move (1,-2)
+                    , Collage.filled Color.black (Collage.rect 2 4) |> Collage.rotate (degrees -65) |> Collage.move (-1,-2)
+                    ]
+                    |> Collage.rotate (degrees -90)
+                    |> Collage.rotate angle
 
 drawPlanet : Planet -> Collage.Form
 drawPlanet (Planet planet) =
     let pos = planetPos planet
         drawInhabitant angle =
-            Collage.filled Color.green (Collage.circle 5)
+            drawStickFigure angle
                 |> Collage.move
                    (Vector.scale (5 + planet.radius) (cos angle, sin angle))
 

@@ -42,7 +42,7 @@ initialModel =
                 , orbitalRadius = 100
                 , orbitalAngle  = 3
                 , orbitalPeriod = 20 * Time.second
-                , maxPopulation = 8
+                , maxPopulation = 100
                 , inhabitants   = []
                 , overpopulated = Nothing
                 }
@@ -51,9 +51,10 @@ initialModel =
 
 randomStick : Generator Stick
 randomStick =
-    let mkStick pos vel =
+    let mkStick pos vel angle =
             { pos = pos
             , vel = vel
+            , angle = angle
             }
         randomPos = Random.pair
                     (Random.float -500 500)
@@ -63,7 +64,9 @@ randomStick =
             in Random.pair
                 (Random.float low high)
                 (Random.float low high)
-    in Random.map2 mkStick randomPos randomVel
+
+        randomAngle = Random.float 0 (2*pi)
+    in Random.map3 mkStick randomPos randomVel randomAngle
 
 -- SUBSCRIBTIONS
 

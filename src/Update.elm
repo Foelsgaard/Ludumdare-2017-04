@@ -73,9 +73,12 @@ updateStick dt planets stick =
 
         newPos = stick.pos .+ Vector.scale dt newVel
 
+        newAngle = stick.angle +0.1
+
     in if List.any (stickPlanetCollision stick) planets
        then Nothing
        else Just { stick
                      | vel = newVel
                      , pos = newPos
+                     , angle = newAngle
                  }
