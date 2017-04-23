@@ -88,9 +88,6 @@ generateParticle genPos =
                     (Random.float -1 1)
   in Random.map mkParticle randomVel
 
---generateParticles : List Vector -> Generator (List Particle)
---generateParticles positions =
-
 -- SUBSCRIBTIONS
 
 maxDiffLength = 20 * Time.millisecond

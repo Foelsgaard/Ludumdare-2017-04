@@ -3,6 +3,7 @@ module Update exposing (..)
 import Vector exposing (Point, (.+), (.-))
 import Util exposing (..)
 import Model exposing (..)
+import Random exposing (Generator)
 
 import Time exposing (Time)
 import Dict exposing (Dict)
@@ -55,12 +56,12 @@ updateHelp msg model =
     Reset -> model
 
     Tick dt ->
-      let
-        --newParticles =
-        newSticks = List.filterMap (updateStick dt model.planets) model.sticks
+      let 
+        (newSticks,points) = split model.sticks (updateStick dt model.planets)
+        newParticles = List.concatMap createExplosion points
       in { model
-            | particles =
-                List.filterMap (updateParticle dt) model.particles
+            | particles = 
+                List.filterMap (updateParticle dt) model.particles ++ newParticles
             , sticks=
                 newSticks
             , planets =
@@ -82,6 +83,26 @@ updateHelp msg model =
             | dragging = Nothing
         }
 
+createExplosion : Point -> List Particle
+createExplosion pos =
+                  Random.step
+                  (Random.list 10 (generateParticle pos))
+                  (Random.initialSeed 0)
+                  |> Tuple.first
+
+
+generateParticle : Point -> Generator Particle 
+generateParticle genPos =
+  let mkParticle vel =
+      { pos = genPos
+      , vel = vel
+      , lifetime = 0.5* Time.second
+      }
+      randomVel = Random.pair
+                    (Random.float -0.1 0.1)
+                    (Random.float -0.1 0.1)
+  in Random.map mkParticle randomVel
+
 
 updateParticle : Time -> Particle -> Maybe Particle
 updateParticle dt particle =
@@ -96,7 +117,7 @@ updateParticle dt particle =
                   }
         else Nothing
 
-updateStick : Time -> List Planet -> Stick -> Maybe Stick
+updateStick : Time -> List Planet -> Stick -> Either Stick Point
 updateStick dt planets stick =
 
     let acc = Vector.sum (List.map (gravity stick.pos) planets)
@@ -109,8 +130,8 @@ updateStick dt planets stick =
         newAngle = stick.angle +0.1
 
     in if List.any (stickPlanetCollision stick) planets
-       then Nothing
-       else Just { stick
+       then Right stick.pos
+       else Left { stick
                      | vel = newVel
                      , pos = newPos
                      , angle = newAngle
