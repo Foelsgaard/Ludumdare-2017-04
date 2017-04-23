@@ -9,7 +9,8 @@ import Dict exposing (Dict)
 -- Types
 
 type alias Model =
-    { sticks  : List Stick
+    { particles : List Particle
+    , sticks  : List Stick
     , planets : List Planet
     }
 
@@ -18,6 +19,13 @@ type alias Key = Int
 type alias Stick =
     { pos   : Vector
     , vel   : Vector
+    , angle : Float
+    }
+
+type alias Particle =
+    { pos      : Vector
+    , vel      : Vector
+    , lifetime : Float
     }
 
 type Planet = Planet
@@ -35,7 +43,9 @@ type Planet = Planet
 
 overpopulationTimer = 10 * Time.second
 
-g = 0.001
+g = 0.01
 maxSpeed = 50000 * pixelsPerSecond
 
 pixelsPerSecond = 1 / Time.second
+
+particleMaxLifetime = 5 

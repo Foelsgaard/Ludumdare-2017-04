@@ -4,6 +4,7 @@ import Model exposing (..)
 import Util exposing (..)
 import Update exposing (..)
 import View exposing (..)
+import Vector exposing (..)
 
 import Time exposing (Time)
 import AnimationFrame
@@ -21,7 +22,11 @@ main = Html.program
        }
 
 initialModel =
-    { sticks = Random.step
+    { particles = Random.step
+                  (Random.list 300 (generateParticle (0,0)))
+                  (Random.initialSeed 0)
+    |> Tuple.first
+    , sticks = Random.step
                (Random.list 200 randomStick)
                (Random.initialSeed 0)
     |> Tuple.first
@@ -67,6 +72,21 @@ randomStick =
 
         randomAngle = Random.float 0 (2*pi)
     in Random.map3 mkStick randomPos randomVel randomAngle
+
+generateParticle : Vector -> Generator Particle 
+generateParticle genPos =
+  let mkParticle vel =
+      { pos = genPos
+      , vel = vel
+      , lifetime = 0.5* Time.second
+      }
+      randomVel = Random.pair
+                    (Random.float -1 1)
+                    (Random.float -1 1)
+  in Random.map mkParticle randomVel
+
+--generateParticles : List Vector -> Generator (List Particle)
+--generateParticles positions = 
 
 -- SUBSCRIBTIONS
 

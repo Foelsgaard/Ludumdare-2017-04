@@ -3,6 +3,7 @@ module View exposing (..)
 import Util exposing (..)
 import Model exposing (..)
 import Vector
+import Text exposing (..)
 
 import Collage
 import Color
@@ -27,6 +28,13 @@ drawStickFigure angle =
                     |> Collage.rotate (degrees -90)
                     |> Collage.rotate angle
 
+
+drawParticle : Particle -> Collage.Form
+drawParticle particle =
+        Collage.filled (Color.hsl particle.lifetime 1 0.5) (Collage.circle 1) |> Collage.move particle.pos
+        --Collage.filled Collage.black (Collage.circle 1) |> Collage.move particle.pos
+
+
 drawPlanet : Planet -> Collage.Form
 drawPlanet (Planet planet) =
     let pos = planetPos planet
@@ -42,15 +50,17 @@ drawPlanet (Planet planet) =
                                   / toFloat planet.maxPopulation)
                            |> clamp 0 (2 / 3 * pi)
                 Just t  -> 0.5 * 2 / 3 * pi * (1 - t / overpopulationTimer)
-    in Collage.group
-        (Collage.filled (Color.hsl hue 1 0.5) (Collage.circle planet.radius)
-        :: (List.map drawInhabitant planet.inhabitants))
+    in  [ (Collage.filled (Color.hsl hue 1 0.5) (Collage.circle planet.radius))
+        , (Collage.text (Text.fromString (toString (List.length planet.inhabitants))))] 
+        ++ (List.map drawInhabitant planet.inhabitants)
+        |> Collage.group
         |> Collage.move pos
 
 view model =
     let entities =
             List.map drawStick model.sticks
             ++ List.map drawPlanet model.planets
+            ++ List.map drawParticle model.particles
 
     in Html.div []
         [ Collage.collage 1000 1000 entities |> Element.toHtml

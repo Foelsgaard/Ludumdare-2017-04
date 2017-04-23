@@ -9,6 +9,7 @@ import Dict exposing (Dict)
 
 import Collage
 
+
 updatePlanet : Time -> List Stick -> Planet -> Planet
 updatePlanet dt sticks (Planet planet) =
     let newOrbitalAngle =
@@ -56,12 +57,32 @@ updateHelp msg model =
     Reset -> model
 
     Tick dt ->
-        { model
-            | sticks =
-                List.filterMap (updateStick dt model.planets) model.sticks
+      let 
+        --newParticles = 
+        newSticks = List.filterMap (updateStick dt model.planets) model.sticks
+      in { model
+            | particles = 
+                List.filterMap (updateParticle dt) model.particles 
+            , sticks=
+                newSticks              
             , planets =
                 List.map (updatePlanet dt model.sticks) model.planets
         }
+
+
+
+updateParticle : Time -> Particle -> Maybe Particle
+updateParticle dt particle =
+    let 
+        newVel = particle.vel
+        newPos = particle.pos .+ Vector.scale dt particle.vel
+        newLifetime = particle.lifetime - dt
+    in  if newLifetime >= 0
+        then Just { pos = newPos
+                  , vel = newVel
+                  , lifetime = newLifetime
+                  }
+        else Nothing
 
 updateStick : Time -> List Planet -> Stick -> Maybe Stick
 updateStick dt planets stick =
@@ -82,3 +103,4 @@ updateStick dt planets stick =
                      , pos = newPos
                      , angle = newAngle
                  }
+            
