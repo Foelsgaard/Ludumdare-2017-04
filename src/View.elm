@@ -44,16 +44,20 @@ drawPlanet (Planet planet) =
                    (Vector.scale (5 + planet.radius) (cos angle, sin angle))
 
         hue =
-            case planet.overpopulated of
-                Nothing -> 2 / 3 * pi
-                           * (1 - toFloat (List.length (planet.inhabitants))
-                                  / toFloat planet.maxPopulation)
-                           |> clamp 0 (2 / 3 * pi)
-                Just t  -> 0.5 * 2 / 3 * pi * (1 - t / overpopulationTimer)
+            case (planet.overpopulated, planet.maxPopulation) of
+                (_, 0) -> 0
+                (Nothing, _) ->
+                    2 / 3 * pi
+                        * (1 - toFloat (List.length (planet.inhabitants))
+                               / toFloat planet.maxPopulation)
+                            |> clamp 0 (2 / 3 * pi)
+                (Just t, _) ->
+                    0.5 * 2 / 3 * pi * (1 - t / overpopulationTimer)
     in  (Collage.filled (Color.hsl hue 1 0.5) (Collage.circle planet.radius))
         :: (Collage.text
-                (case planet.overpopulated of
-                    Nothing ->
+                (case (planet.overpopulated, planet.maxPopulation) of
+                    (_, 0) -> Text.fromString "!!!"
+                    (Nothing, _) ->
                         (Text.fromString
                              (String.concat
                                   [ toString (List.length planet.inhabitants)
@@ -61,7 +65,7 @@ drawPlanet (Planet planet) =
                                   , toString planet.maxPopulation
                                   ]
                              ))
-                    Just _ -> Text.fromString "!!!"
+                    (Just _, _) -> Text.fromString "!!!"
                 )
            )
         :: (List.map drawInhabitant planet.inhabitants)
