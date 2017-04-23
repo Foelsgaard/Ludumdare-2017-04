@@ -75,7 +75,6 @@ initialModel =
                 }
           ]
     , score = 0
-    , dragging = Nothing
     }
 
 randomStick : Generator Stick
@@ -116,20 +115,8 @@ maxDiffLength = 20 * Time.millisecond
 subscriptions model =
     Platform.Sub.batch
         [ AnimationFrame.diffs (min maxDiffLength >> Tick)
-        , dragSubscription model
+        , Mouse.clicks (positionToPoint >> Flick)
         ]
 
 positionToPoint : Mouse.Position -> Point
 positionToPoint {x, y} = (toFloat x - 500, 500 - toFloat y)
-
-dragSubscription model =
-    let subs =
-            case model.dragging of
-                Nothing ->
-                    [ Mouse.downs (positionToPoint >> DragStart)
-                    ]
-                Just (p, _) ->
-                    [ Mouse.ups (\_ -> DragEnd)
-                    , Mouse.moves (positionToPoint >> Drag p)
-                    ]
-    in Platform.Sub.batch subs

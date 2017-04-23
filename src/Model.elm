@@ -13,7 +13,6 @@ type alias Model =
     , sticks  : List Stick
     , planets : List Planet
     , score : Int
-    , dragging : Maybe (Point, Point)
     }
 
 type alias Key = Int

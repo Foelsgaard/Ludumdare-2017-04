@@ -58,7 +58,7 @@ updateHelp msg model =
     Reset -> model
 
     Tick dt ->
-      let 
+      let
         (newSticks,points) = split model.sticks (updateStick dt model.planets)
         (newPlanets,planetPoints) = List.map (updatePlanet dt model.sticks) model.planets |> List.unzip 
         --newParticles = List.concatMap (createExplosion 1) (points ++ List.concat planetPoints)
@@ -75,20 +75,43 @@ updateHelp msg model =
                 newPlanets
             , score = List.length model.sticks
         }
-    DragStart p ->
-        { model
-            | dragging = Just (p, p)
-        }
+    Flick p ->
+        let (newPlanets, flickedSticks) =
+                List.map (flickInhabitant p) model.planets |> List.unzip
+        in { model
+               | planets = newPlanets
+               , sticks = model.sticks ++ List.concat flickedSticks
+           }
 
-    Drag p1 p2 ->
-        { model
-            | dragging = Just (p1, p2)
-        }
+inhabitantPos : Point -> Float -> Float -> Point
+inhabitantPos pos radius angle =
+    (Vector.scale (5 + radius) (cos angle, sin angle)) .+ pos
 
-    DragEnd ->
-        { model
-            | dragging = Nothing
-        }
+flickInhabitant : Point -> Planet -> (Planet, List Stick)
+flickInhabitant p (Planet planet) =
+    let (flicked, remaining) =
+            List.partition
+                (\angle ->
+                     Vector.dist
+                     (inhabitantPos
+                          (planetPos planet)
+                          planet.radius
+                          angle)
+                     p <= 10)
+                planet.inhabitants
+
+        angleToStick angle =
+            let p = inhabitantPos (planetPos planet) planet.radius angle
+                dir = p .- planetPos planet |> Vector.normalize
+            in { pos = Vector.scale 20 dir .+ p
+               , vel = Vector.scale (600 * pixelsPerSecond) dir
+               , angle = angle
+               }
+    in ( Planet { planet
+                    | inhabitants = remaining
+                }
+       , List.map angleToStick flicked
+       )
 
 createExplosion : Int -> Point -> List Particle
 createExplosion numParticles pos =
@@ -147,6 +170,4 @@ updateStick dt planets stick =
 type Message
     = Reset
     | Tick Time
-    | DragStart Point
-    | Drag Point Point
-    | DragEnd
+    | Flick Point
