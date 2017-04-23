@@ -1,6 +1,6 @@
 module Update exposing (..)
 
-import Vector exposing ((.+), (.-),Point)
+import Vector exposing (Point, (.+), (.-))
 import Util exposing (..)
 import Model exposing (..)
 import Random exposing (Generator)
@@ -48,8 +48,6 @@ updatePlanet dt sticks (Planet planet) =
                           op     -> op
               },explodingPoints)
 
-type Message = Reset | Tick Time
-
 update : Message -> Model -> (Model, Cmd Message)
 update msg model =
     (updateHelp msg model, Cmd.none)
@@ -72,10 +70,24 @@ updateHelp msg model =
             | particles = 
                 List.filterMap (updateParticle dt) model.particles ++ newParticles
             , sticks=
-                newSticks              
+                newSticks
             , planets =
                 newPlanets
             , score = List.length model.sticks
+        }
+    DragStart p ->
+        { model
+            | dragging = Just (p, p)
+        }
+
+    Drag p1 p2 ->
+        { model
+            | dragging = Just (p1, p2)
+        }
+
+    DragEnd ->
+        { model
+            | dragging = Nothing
         }
 
 createExplosion : Int -> Point -> List Particle
@@ -99,10 +111,9 @@ generateParticle genPos =
   in Random.map mkParticle randomVel
 
 
-
 updateParticle : Time -> Particle -> Maybe Particle
 updateParticle dt particle =
-    let 
+    let
         newVel = particle.vel
         newPos = particle.pos .+ Vector.scale dt particle.vel
         newLifetime = particle.lifetime - dt
@@ -132,4 +143,10 @@ updateStick dt planets stick =
                      , pos = newPos
                      , angle = newAngle
                  }
-            
+
+type Message
+    = Reset
+    | Tick Time
+    | DragStart Point
+    | Drag Point Point
+    | DragEnd

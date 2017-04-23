@@ -1,6 +1,6 @@
 module Model exposing (..)
 
-import Vector exposing (Vector)
+import Vector exposing (Vector, Point)
 
 import Time exposing (Time)
 import Collage
@@ -13,6 +13,7 @@ type alias Model =
     , sticks  : List Stick
     , planets : List Planet
     , score : Int
+    , dragging : Maybe (Point, Point)
     }
 
 type alias Key = Int

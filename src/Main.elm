@@ -11,6 +11,8 @@ import AnimationFrame
 import Html
 import Dict
 import Random exposing (Generator)
+import Platform.Sub
+import Mouse
 
 -- Main function
 
@@ -22,9 +24,12 @@ main = Html.program
        }
 
 initialModel =
-    { particles = []
+    { particles = Random.step
+                  (Random.list 0 (generateParticle (0,0)))
+                  (Random.initialSeed 0)
+    |> Tuple.first
     , sticks = Random.step
-               (Random.list 200 randomStick)
+               (Random.list 10 randomStick)
                (Random.initialSeed 0)
     |> Tuple.first
     , planets =
@@ -70,6 +75,7 @@ initialModel =
                 }
           ]
     , score = 0
+    , dragging = Nothing
     }
 
 randomStick : Generator Stick
@@ -91,9 +97,39 @@ randomStick =
         randomAngle = Random.float 0 (2*pi)
     in Random.map3 mkStick randomPos randomVel randomAngle
 
+generateParticle : Vector -> Generator Particle
+generateParticle genPos =
+  let mkParticle vel =
+      { pos = genPos
+      , vel = vel
+      , lifetime = 0.5* Time.second
+      }
+      randomVel = Random.pair
+                    (Random.float -1 1)
+                    (Random.float -1 1)
+  in Random.map mkParticle randomVel
+
 -- SUBSCRIBTIONS
 
 maxDiffLength = 20 * Time.millisecond
 
 subscriptions model =
-    AnimationFrame.diffs (min maxDiffLength >> Tick)
+    Platform.Sub.batch
+        [ AnimationFrame.diffs (min maxDiffLength >> Tick)
+        , dragSubscription model
+        ]
+
+positionToPoint : Mouse.Position -> Point
+positionToPoint {x, y} = (toFloat x - 500, 500 - toFloat y)
+
+dragSubscription model =
+    let subs =
+            case model.dragging of
+                Nothing ->
+                    [ Mouse.downs (positionToPoint >> DragStart)
+                    ]
+                Just (p, _) ->
+                    [ Mouse.ups (\_ -> DragEnd)
+                    , Mouse.moves (positionToPoint >> Drag p)
+                    ]
+    in Platform.Sub.batch subs
