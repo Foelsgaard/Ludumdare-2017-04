@@ -129,7 +129,19 @@ updateParticle dt particle =
 updateStick : Time -> List Planet -> Stick -> Either Stick Point
 updateStick dt planets stick =
 
-    let acc = Vector.sum (List.map (gravity stick.pos) planets)
+    let acc =(Vector.sum (List.map (gravity stick.pos) planets)) 
+              .+ gravity stick.pos ( Planet -- Gravity from the star in the middle
+                { radius        = 2
+                , mass          = 200
+                , orbitalRadius = 0
+                , orbitalAngle  = 0
+                , orbitalPeriod = 0 * Time.second
+                , maxPopulation = 0
+                , inhabitants   = []
+                , overpopulated = Nothing
+                , textString    = "Star"
+                }
+                )
 
         newVel = stick.vel .+ Vector.scale dt acc
                |> Vector.clamp (negate maxSpeed) maxSpeed
@@ -138,7 +150,7 @@ updateStick dt planets stick =
 
         newAngle = stick.angle +0.1
 
-    in if List.any (stickPlanetCollision stick) planets || Vector.dist stick.pos (0,0) >= 1000 -- Max distance away from origin: 1000
+    in if List.any (stickPlanetCollision stick) planets || Vector.dist stick.pos (0,0) <= 20 || Vector.dist stick.pos (0,0) >= 1000 -- Max distance away from origin: 1000
        then Right stick.pos
        else Left { stick
                      | vel = newVel

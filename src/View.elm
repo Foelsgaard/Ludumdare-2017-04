@@ -61,7 +61,7 @@ view model =
     let entities =
 
             --[Collage.filled (Color.hsl 1 1 0.4) (Collage.circle 50) |> Collage.move (0,0)] ++
-            [Collage.filled (Color.hsl 1 1 0.4) (Collage.circle 2) |> Collage.move (0,0)] ++
+            [Collage.filled (Color.hsl 1 1 0.4) (Collage.circle 15) |> Collage.move (0,0)] ++
             List.map drawStick model.sticks
             ++ List.map drawPlanet model.planets
             ++ List.map drawParticle model.particles
