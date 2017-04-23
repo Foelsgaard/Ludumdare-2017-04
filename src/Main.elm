@@ -29,7 +29,7 @@ initialModel =
                   (Random.initialSeed 0)
     |> Tuple.first
     , sticks = Random.step
-               (Random.list 10 randomStick)
+               (Random.list 100 randomStick)
                (Random.initialSeed 0)
     |> Tuple.first
     , planets =
@@ -42,6 +42,7 @@ initialModel =
                 , maxPopulation = 10
                 , inhabitants   = []
                 , overpopulated = Nothing
+                , textString    = "Test"
                 }
           , Planet
                 { radius        = 15
@@ -52,6 +53,7 @@ initialModel =
                 , maxPopulation = 10
                 , inhabitants   = []
                 , overpopulated = Nothing
+                , textString    = "Test"
                 }
           , Planet
                 { radius        = 5
@@ -62,6 +64,7 @@ initialModel =
                 , maxPopulation = 5
                 , inhabitants   = []
                 , overpopulated = Nothing
+                , textString    = "Test"
                 }
           , Planet
                 { radius        = 10
@@ -72,9 +75,11 @@ initialModel =
                 , maxPopulation = 10
                 , inhabitants   = []
                 , overpopulated = Nothing
+                , textString    = "Test"
                 }
           ]
     , score = 0
+    , deltaScore = 0
     , dragging = Nothing
     }
 
@@ -117,6 +122,7 @@ subscriptions model =
     Platform.Sub.batch
         [ AnimationFrame.diffs (min maxDiffLength >> Tick)
         , dragSubscription model
+        , secondSubscription
         ]
 
 positionToPoint : Mouse.Position -> Point
@@ -133,3 +139,5 @@ dragSubscription model =
                     , Mouse.moves (positionToPoint >> Drag p)
                     ]
     in Platform.Sub.batch subs
+
+secondSubscription = Time.every Time.second Second

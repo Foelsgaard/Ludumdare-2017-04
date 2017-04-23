@@ -51,7 +51,8 @@ drawPlanet (Planet planet) =
                            |> clamp 0 (2 / 3 * pi)
                 Just t  -> 0.5 * 2 / 3 * pi * (1 - t / overpopulationTimer)
     in  [ (Collage.filled (Color.hsl hue 1 0.5) (Collage.circle planet.radius))
-        , (Collage.text (Text.fromString (toString (List.length planet.inhabitants))))] 
+        , (Collage.text (Text.fromString planet.textString))] 
+        --, (Collage.text (Text.fromString (toString (List.length planet.inhabitants))))] 
         ++ (List.map drawInhabitant planet.inhabitants)
         |> Collage.group
         |> Collage.move pos
@@ -61,7 +62,11 @@ view model =
             List.map drawStick model.sticks
             ++ List.map drawPlanet model.planets
             ++ List.map drawParticle model.particles
-            ++ [(Collage.text (Text.fromString (toString model.score)) |> Collage.move (450,450))]
+            ++ [(Collage.text (Text.fromString "Current score: ") |> Collage.move scoreboardPos)]
+            ++ [(Collage.text (Text.fromString (toString model.score)) |> Collage.move (Vector.sub scoreboardPos scoreboardSpacing))]
+            ++ [(Collage.text (Text.fromString ("Every second you get:")) |> Collage.move (Vector.sub scoreboardPos (Vector.scale 2 scoreboardSpacing)))]
+            ++ [(Collage.text (Text.fromString ("+"++(toString model.deltaScore))) |> Collage.move (Vector.sub scoreboardPos (Vector.scale 3 scoreboardSpacing)))]
+            ++ [(Collage.text (Text.fromString ("from the inhabitants of your planets!")) |> Collage.move (Vector.sub scoreboardPos (Vector.scale 4 scoreboardSpacing)))]
             ++ maybeToList (Maybe.map drawDrag model.dragging)
 
     in Html.div []

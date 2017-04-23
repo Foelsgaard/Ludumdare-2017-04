@@ -13,6 +13,7 @@ type alias Model =
     , sticks  : List Stick
     , planets : List Planet
     , score : Int
+    , deltaScore : Int
     , dragging : Maybe (Point, Point)
     }
 
@@ -39,6 +40,7 @@ type Planet = Planet
     , inhabitants   : List Float
     , maxPopulation : Int
     , overpopulated : Maybe Time
+    , textString    : String
     }
 
 -- Constants
@@ -51,3 +53,6 @@ maxSpeed = 50000 * pixelsPerSecond
 pixelsPerSecond = 1 / Time.second
 
 particleMaxLifetime = 5 
+
+scoreboardPos = (-400,465)
+scoreboardSpacing = (0,15)
