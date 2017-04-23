@@ -61,6 +61,7 @@ view model =
             List.map drawStick model.sticks
             ++ List.map drawPlanet model.planets
             ++ List.map drawParticle model.particles
+            ++ [(Collage.text (Text.fromString (toString model.score)) |> Collage.move (450,450))]
 
     in Html.div []
         [ Collage.collage 1000 1000 entities |> Element.toHtml

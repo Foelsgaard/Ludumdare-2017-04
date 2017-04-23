@@ -12,6 +12,7 @@ type alias Model =
     { particles : List Particle
     , sticks  : List Stick
     , planets : List Planet
+    , score : Int
     }
 
 type alias Key = Int
@@ -41,7 +42,7 @@ type Planet = Planet
 
 -- Constants
 
-overpopulationTimer = 10 * Time.second
+overpopulationTimer = 2 * Time.second
 
 g = 0.01
 maxSpeed = 50000 * pixelsPerSecond

@@ -11,7 +11,7 @@ import Dict exposing (Dict)
 import Collage
 
 
-updatePlanet : Time -> List Stick -> Planet -> Planet
+updatePlanet : Time -> List Stick -> Planet -> (Planet,List Point)
 updatePlanet dt sticks (Planet planet) =
     let newOrbitalAngle =
             planet.orbitalAngle + dt * 2 * pi / planet.orbitalPeriod
@@ -19,20 +19,22 @@ updatePlanet dt sticks (Planet planet) =
             List.filterMap (planetStickCollisionAngle planet) sticks
         potentialNewInhabitants = planet.inhabitants ++ collidingSticks
 
-        (newInhabitants, newOverpopulated) =
+        (newInhabitants, newOverpopulated, explodingPoints) =
             case ( planet.overpopulated
                  , List.length potentialNewInhabitants
                      >= planet.maxPopulation
                  ) of
-                (Nothing, True) -> ( [], Just overpopulationTimer)
+                (Nothing, True) -> ( [], Just overpopulationTimer, [planetPos planet])
                 (op, True)      -> ( []
                                    , Maybe.map (\t -> (t - dt)) op
+                                   , []
                                    )
                 (Just t, False) -> ( []
                                    , Just (t - dt)
+                                   , []
                                    )
-                (op, False)     -> (potentialNewInhabitants, op)
-    in Planet { planet
+                (op, False)     -> (potentialNewInhabitants, op,[])
+    in (Planet { planet
                   | orbitalAngle =
                     if newOrbitalAngle >= 2 * pi
                     then newOrbitalAngle - 2 * pi
@@ -44,7 +46,7 @@ updatePlanet dt sticks (Planet planet) =
                                     then Nothing
                                     else Just t
                           op     -> op
-              }
+              },explodingPoints)
 
 type Message = Reset | Tick Time
 
@@ -60,20 +62,26 @@ updateHelp msg model =
     Tick dt ->
       let 
         (newSticks,points) = split model.sticks (updateStick dt model.planets)
-        newParticles = List.concatMap createExplosion points
+        (newPlanets,planetPoints) = List.map (updatePlanet dt model.sticks) model.planets |> List.unzip 
+        --newParticles = List.concatMap (createExplosion 1) (points ++ List.concat planetPoints)
+        newStickParticles = List.map (createExplosion 1) points
+        newPlanetParticles = List.map (createExplosion 100) (List.concat planetPoints)
+        newParticles = List.concat (newStickParticles ++ newPlanetParticles)
+
       in { model
             | particles = 
                 List.filterMap (updateParticle dt) model.particles ++ newParticles
             , sticks=
                 newSticks              
             , planets =
-                List.map (updatePlanet dt model.sticks) model.planets
+                newPlanets
+            , score = List.length model.sticks
         }
 
-createExplosion : Point -> List Particle
-createExplosion pos =
+createExplosion : Int -> Point -> List Particle
+createExplosion numParticles pos =
                   Random.step
-                  (Random.list 10 (generateParticle pos))
+                  (Random.list numParticles (generateParticle pos))
                   (Random.initialSeed 0)
                   |> Tuple.first
 
