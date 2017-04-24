@@ -12321,11 +12321,11 @@ var _user$project$Update$updateHelp = F2(
 						});
 				}
 			case 'Tick':
-				var _p21 = _p14._0;
+				var _p23 = _p14._0;
 				var _p15 = _elm_lang$core$List$unzip(
 					A2(
 						_elm_lang$core$List$map,
-						A2(_user$project$Update$updatePlanet, _p21, model.sticks),
+						A2(_user$project$Update$updatePlanet, _p23, model.sticks),
 						model.planets));
 				var newPlanets = _p15._0;
 				var planetPoints = _p15._1;
@@ -12336,7 +12336,7 @@ var _user$project$Update$updateHelp = F2(
 				var _p16 = A2(
 					_user$project$Util$split,
 					model.sticks,
-					A2(_user$project$Update$updateStick, _p21, model.planets));
+					A2(_user$project$Update$updateStick, _p23, model.planets));
 				var newSticks = _p16._0;
 				var points = _p16._1;
 				var newStickParticles = A2(
@@ -12345,14 +12345,20 @@ var _user$project$Update$updateHelp = F2(
 					points);
 				var newParticles = _elm_lang$core$List$concat(
 					A2(_elm_lang$core$Basics_ops['++'], newStickParticles, newPlanetParticles));
-				var gameOver = _elm_lang$core$List$isEmpty(newSticks) || A2(
-					_elm_lang$core$List$any,
+				var gameOver = (_elm_lang$core$List$isEmpty(newSticks) && A2(
+					_elm_lang$core$List$all,
 					function (_p17) {
 						var _p18 = _p17;
-						return _elm_lang$core$Native_Utils.cmp(_p18._0.maxPopulation, 0) < 1;
+						return _elm_lang$core$List$isEmpty(_p18._0.inhabitants);
+					},
+					model.planets)) || A2(
+					_elm_lang$core$List$any,
+					function (_p19) {
+						var _p20 = _p19;
+						return _elm_lang$core$Native_Utils.eq(_p20._0.maxPopulation, 0);
 					},
 					model.planets);
-				var pop = (_elm_lang$core$Native_Utils.cmp(model.untilPop - _p21, 0) < 1) && (!gameOver);
+				var pop = (_elm_lang$core$Native_Utils.cmp(model.untilPop - _p23, 0) < 1) && (!gameOver);
 				var newScore = pop ? (model.score + model.deltaScore) : model.score;
 				return _elm_lang$core$Native_Utils.update(
 					model,
@@ -12361,7 +12367,7 @@ var _user$project$Update$updateHelp = F2(
 							_elm_lang$core$Basics_ops['++'],
 							A2(
 								_elm_lang$core$List$filterMap,
-								_user$project$Update$updateParticle(_p21),
+								_user$project$Update$updateParticle(_p23),
 								model.particles),
 							newParticles),
 						sticks: newSticks,
@@ -12369,23 +12375,23 @@ var _user$project$Update$updateHelp = F2(
 						deltaScore: _elm_lang$core$List$sum(
 							A2(
 								_elm_lang$core$List$map,
-								function (_p19) {
-									var _p20 = _p19;
-									return _elm_lang$core$List$length(_p20._0.inhabitants);
+								function (_p21) {
+									var _p22 = _p21;
+									return _elm_lang$core$List$length(_p22._0.inhabitants);
 								},
 								model.planets)),
 						score: newScore,
-						untilPop: pop ? ((model.untilPop - _p21) + _elm_lang$core$Time$second) : (model.untilPop - _p21),
+						untilPop: pop ? ((model.untilPop - _p23) + _elm_lang$core$Time$second) : (model.untilPop - _p23),
 						gameOver: gameOver
 					});
 			default:
-				var _p22 = _elm_lang$core$List$unzip(
+				var _p24 = _elm_lang$core$List$unzip(
 					A2(
 						_elm_lang$core$List$map,
 						_user$project$Update$flickInhabitant(_p14._0),
 						model.planets));
-				var newPlanets = _p22._0;
-				var flickedSticks = _p22._1;
+				var newPlanets = _p24._0;
+				var flickedSticks = _p24._1;
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{
@@ -12408,16 +12414,16 @@ var _user$project$Update$Tick = function (a) {
 };
 var _user$project$Update$update = F2(
 	function (msg, model) {
-		var _p23 = {ctor: '_Tuple2', _0: model.gameOver, _1: msg};
-		_v8_3:
+		var _p25 = {ctor: '_Tuple2', _0: model.gameOver, _1: msg};
+		_v9_3:
 		do {
-			if (_p23.ctor === '_Tuple2') {
-				if (_p23._0 === false) {
-					if (_p23._1.ctor === 'Tick') {
+			if (_p25.ctor === '_Tuple2') {
+				if (_p25._0 === false) {
+					if (_p25._1.ctor === 'Tick') {
 						return {
 							ctor: '_Tuple2',
 							_0: A2(_user$project$Update$updateHelp, msg, model),
-							_1: (_elm_lang$core$Native_Utils.cmp(model.untilPop - _p23._1._0, 0) < 1) ? _elm_lang$core$Platform_Cmd$batch(
+							_1: (_elm_lang$core$Native_Utils.cmp(model.untilPop - _p25._1._0, 0) < 1) ? _elm_lang$core$Platform_Cmd$batch(
 								A2(
 									_elm_lang$core$List$map,
 									_elm_lang$core$Random$generate(_user$project$Update$Pop),
@@ -12426,26 +12432,26 @@ var _user$project$Update$update = F2(
 					} else {
 						return {
 							ctor: '_Tuple2',
-							_0: A2(_user$project$Update$updateHelp, _p23._1, model),
+							_0: A2(_user$project$Update$updateHelp, _p25._1, model),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
 					}
 				} else {
-					if (_p23._1.ctor === 'Tick') {
+					if (_p25._1.ctor === 'Tick') {
 						return {
 							ctor: '_Tuple2',
 							_0: A2(
 								_user$project$Update$updateHelp,
-								_user$project$Update$Tick(_p23._1._0),
+								_user$project$Update$Tick(_p25._1._0),
 								model),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
 					} else {
-						break _v8_3;
+						break _v9_3;
 					}
 				}
 			} else {
-				break _v8_3;
+				break _v9_3;
 			}
 		} while(false);
 		return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
@@ -12774,32 +12780,25 @@ var _user$project$View$view = function (model) {
 														_evancz$elm_graphics$Text$fromString('from the inhabitants of your planets!'))),
 												_1: {ctor: '[]'}
 											},
-											model.gameOver ? {
-												ctor: '::',
-												_0: A2(
-													_evancz$elm_graphics$Collage$move,
-													{ctor: '_Tuple2', _0: 0, _1: _user$project$Model$screenHeight * 0.3},
-													_evancz$elm_graphics$Collage$text(
-														A2(
-															_evancz$elm_graphics$Text$style,
-															{
-																typeface: {
-																	ctor: '::',
-																	_0: 'Arial',
-																	_1: {ctor: '[]'}
-																},
-																height: _elm_lang$core$Maybe$Just(40),
-																color: _elm_lang$core$Color$black,
-																bold: true,
-																italic: false,
-																line: _elm_lang$core$Maybe$Nothing
-															},
-															_evancz$elm_graphics$Text$fromString('Game Over')))),
-												_1: {
+											A2(
+												_elm_lang$core$Basics_ops['++'],
+												{
 													ctor: '::',
 													_0: A2(
 														_evancz$elm_graphics$Collage$move,
-														{ctor: '_Tuple2', _0: 0, _1: _user$project$Model$screenHeight * 0.2},
+														A2(
+															_user$project$Vector$sub,
+															_user$project$Model$scoreboardPos,
+															A2(_user$project$Vector$scale, 5, _user$project$Model$scoreboardSpacing)),
+														_evancz$elm_graphics$Collage$text(
+															_evancz$elm_graphics$Text$fromString('Don\'t let your planets get overpopulated!'))),
+													_1: {ctor: '[]'}
+												},
+												model.gameOver ? {
+													ctor: '::',
+													_0: A2(
+														_evancz$elm_graphics$Collage$move,
+														{ctor: '_Tuple2', _0: 0, _1: _user$project$Model$screenHeight * 0.3},
 														_evancz$elm_graphics$Collage$text(
 															A2(
 																_evancz$elm_graphics$Text$style,
@@ -12815,20 +12814,41 @@ var _user$project$View$view = function (model) {
 																	italic: false,
 																	line: _elm_lang$core$Maybe$Nothing
 																},
-																_evancz$elm_graphics$Text$fromString(
-																	_elm_lang$core$String$concat(
-																		{
+																_evancz$elm_graphics$Text$fromString('Game Over')))),
+													_1: {
+														ctor: '::',
+														_0: A2(
+															_evancz$elm_graphics$Collage$move,
+															{ctor: '_Tuple2', _0: 0, _1: _user$project$Model$screenHeight * 0.2},
+															_evancz$elm_graphics$Collage$text(
+																A2(
+																	_evancz$elm_graphics$Text$style,
+																	{
+																		typeface: {
 																			ctor: '::',
-																			_0: 'Final score: ',
-																			_1: {
+																			_0: 'Arial',
+																			_1: {ctor: '[]'}
+																		},
+																		height: _elm_lang$core$Maybe$Just(40),
+																		color: _elm_lang$core$Color$black,
+																		bold: true,
+																		italic: false,
+																		line: _elm_lang$core$Maybe$Nothing
+																	},
+																	_evancz$elm_graphics$Text$fromString(
+																		_elm_lang$core$String$concat(
+																			{
 																				ctor: '::',
-																				_0: _elm_lang$core$Basics$toString(model.score),
-																				_1: {ctor: '[]'}
-																			}
-																		}))))),
-													_1: {ctor: '[]'}
-												}
-											} : {ctor: '[]'}))))))))));
+																				_0: 'Final score: ',
+																				_1: {
+																					ctor: '::',
+																					_0: _elm_lang$core$Basics$toString(model.score),
+																					_1: {ctor: '[]'}
+																				}
+																			}))))),
+														_1: {ctor: '[]'}
+													}
+												} : {ctor: '[]'})))))))))));
 	return A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
