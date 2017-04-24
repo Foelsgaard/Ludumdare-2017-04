@@ -42,7 +42,6 @@ initialModel =
                 , maxPopulation = 7
                 , inhabitants   = []
                 , overpopulated = Nothing
-                , textString    = "Test"
                 }
           , Planet
                 { radius        = 24
@@ -53,7 +52,6 @@ initialModel =
                 , maxPopulation = 6
                 , inhabitants   = [pi * 0.5]
                 , overpopulated = Nothing
-                , textString    = "Test"
                 }
           , Planet
                 { radius        = 15
@@ -64,7 +62,6 @@ initialModel =
                 , maxPopulation = 3
                 , inhabitants   = []
                 , overpopulated = Nothing
-                , textString    = "Test"
                 }
           , Planet
                 { radius        = 18
@@ -75,7 +72,6 @@ initialModel =
                 , maxPopulation = 5
                 , inhabitants   = []
                 , overpopulated = Nothing
-                , textString    = "Test"
                 }
           , Planet
                 { radius        = 10
@@ -86,7 +82,6 @@ initialModel =
                 , maxPopulation = 2
                 , inhabitants   = []
                 , overpopulated = Nothing
-                , textString    = "Test"
                 }
           ]
     , score = 0

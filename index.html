@@ -12055,8 +12055,7 @@ var _user$project$Update$updateStick = F3(
 						orbitalPeriod: 0 * _elm_lang$core$Time$second,
 						maxPopulation: 0,
 						inhabitants: {ctor: '[]'},
-						overpopulated: _elm_lang$core$Maybe$Nothing,
-						textString: 'Star'
+						overpopulated: _elm_lang$core$Maybe$Nothing
 					})));
 		var newVel = A3(
 			_user$project$Vector$clamp,
@@ -12251,7 +12250,7 @@ var _user$project$Update$updatePlanet = F3(
 			if (_p10._0.ctor === 'Nothing') {
 				if (_p10._1 === true) {
 					return {
-						ctor: '_Tuple5',
+						ctor: '_Tuple4',
 						_0: {ctor: '[]'},
 						_1: _elm_lang$core$Maybe$Just(_user$project$Model$overpopulationTimer),
 						_2: {
@@ -12259,42 +12258,31 @@ var _user$project$Update$updatePlanet = F3(
 							_0: _user$project$Util$planetPos(_p13),
 							_1: {ctor: '[]'}
 						},
-						_3: '!!!',
-						_4: A2(_elm_lang$core$Basics$max, _p13.maxPopulation - 1, 0)
+						_3: A2(_elm_lang$core$Basics$max, _p13.maxPopulation - 1, 0)
 					};
 				} else {
 					return {
-						ctor: '_Tuple5',
+						ctor: '_Tuple4',
 						_0: potentialNewInhabitants,
 						_1: _p10._0,
 						_2: {ctor: '[]'},
-						_3: A2(
-							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(
-								_elm_lang$core$List$length(_p13.inhabitants)),
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								'/',
-								_elm_lang$core$Basics$toString(_p13.maxPopulation))),
-						_4: _p13.maxPopulation
+						_3: _p13.maxPopulation
 					};
 				}
 			} else {
 				return {
-					ctor: '_Tuple5',
+					ctor: '_Tuple4',
 					_0: {ctor: '[]'},
 					_1: _elm_lang$core$Maybe$Just(_p10._0._0 - dt),
 					_2: {ctor: '[]'},
-					_3: '!!!',
-					_4: _p13.maxPopulation
+					_3: _p13.maxPopulation
 				};
 			}
 		}();
 		var newInhabitants = _p9._0;
 		var newOverpopulated = _p9._1;
 		var explodingPoints = _p9._2;
-		var newTextString = _p9._3;
-		var newMaxPopulation = _p9._4;
+		var newMaxPopulation = _p9._3;
 		var newOrbitalAngle = _p13.orbitalAngle + (((dt * 2) * _elm_lang$core$Basics$pi) / _p13.orbitalPeriod);
 		return {
 			ctor: '_Tuple2',
@@ -12313,7 +12301,6 @@ var _user$project$Update$updatePlanet = F3(
 								return _p11;
 							}
 						}(),
-						textString: newTextString,
 						maxPopulation: newMaxPopulation
 					})),
 			_1: explodingPoints
@@ -12335,8 +12322,6 @@ var _user$project$Update$updateHelp = F2(
 				}
 			case 'Tick':
 				var _p21 = _p14._0;
-				var pop = _elm_lang$core$Native_Utils.cmp(model.untilPop - _p21, 0) < 1;
-				var newScore = pop ? (model.score + model.deltaScore) : model.score;
 				var _p15 = _elm_lang$core$List$unzip(
 					A2(
 						_elm_lang$core$List$map,
@@ -12360,14 +12345,15 @@ var _user$project$Update$updateHelp = F2(
 					points);
 				var newParticles = _elm_lang$core$List$concat(
 					A2(_elm_lang$core$Basics_ops['++'], newStickParticles, newPlanetParticles));
-				var gameOver = _elm_lang$core$List$isEmpty(newSticks) && _elm_lang$core$List$isEmpty(
-					A2(
-						_elm_lang$core$List$concatMap,
-						function (_p17) {
-							var _p18 = _p17;
-							return _p18._0.inhabitants;
-						},
-						model.planets));
+				var gameOver = _elm_lang$core$List$isEmpty(newSticks) || A2(
+					_elm_lang$core$List$any,
+					function (_p17) {
+						var _p18 = _p17;
+						return _elm_lang$core$Native_Utils.cmp(_p18._0.maxPopulation, 0) < 1;
+					},
+					model.planets);
+				var pop = (_elm_lang$core$Native_Utils.cmp(model.untilPop - _p21, 0) < 1) && (!gameOver);
+				var newScore = pop ? (model.score + model.deltaScore) : model.score;
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{
@@ -12939,8 +12925,7 @@ var _user$project$Main$initialModel = {
 				orbitalPeriod: 35 * _elm_lang$core$Time$second,
 				maxPopulation: 7,
 				inhabitants: {ctor: '[]'},
-				overpopulated: _elm_lang$core$Maybe$Nothing,
-				textString: 'Test'
+				overpopulated: _elm_lang$core$Maybe$Nothing
 			}),
 		_1: {
 			ctor: '::',
@@ -12957,8 +12942,7 @@ var _user$project$Main$initialModel = {
 						_0: _elm_lang$core$Basics$pi * 0.5,
 						_1: {ctor: '[]'}
 					},
-					overpopulated: _elm_lang$core$Maybe$Nothing,
-					textString: 'Test'
+					overpopulated: _elm_lang$core$Maybe$Nothing
 				}),
 			_1: {
 				ctor: '::',
@@ -12971,8 +12955,7 @@ var _user$project$Main$initialModel = {
 						orbitalPeriod: 25 * _elm_lang$core$Time$second,
 						maxPopulation: 3,
 						inhabitants: {ctor: '[]'},
-						overpopulated: _elm_lang$core$Maybe$Nothing,
-						textString: 'Test'
+						overpopulated: _elm_lang$core$Maybe$Nothing
 					}),
 				_1: {
 					ctor: '::',
@@ -12985,8 +12968,7 @@ var _user$project$Main$initialModel = {
 							orbitalPeriod: 20 * _elm_lang$core$Time$second,
 							maxPopulation: 5,
 							inhabitants: {ctor: '[]'},
-							overpopulated: _elm_lang$core$Maybe$Nothing,
-							textString: 'Test'
+							overpopulated: _elm_lang$core$Maybe$Nothing
 						}),
 					_1: {
 						ctor: '::',
@@ -12999,8 +12981,7 @@ var _user$project$Main$initialModel = {
 								orbitalPeriod: 15 * _elm_lang$core$Time$second,
 								maxPopulation: 2,
 								inhabitants: {ctor: '[]'},
-								overpopulated: _elm_lang$core$Maybe$Nothing,
-								textString: 'Test'
+								overpopulated: _elm_lang$core$Maybe$Nothing
 							}),
 						_1: {ctor: '[]'}
 					}

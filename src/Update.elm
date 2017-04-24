@@ -22,22 +22,26 @@ updatePlanet dt sticks (Planet planet) =
             List.filterMap (planetStickCollisionAngle planet) sticks
         potentialNewInhabitants = planet.inhabitants ++ collidingSticks
 
-        (newInhabitants, newOverpopulated, explodingPoints, newTextString, newMaxPopulation) =
-            case ( planet.overpopulated
+        ( newInhabitants
+        , newOverpopulated
+        , explodingPoints
+        , newMaxPopulation
+        ) = case ( planet.overpopulated
                  , List.length potentialNewInhabitants
                      > planet.maxPopulation
                  ) of
-                (Nothing, True) -> ( [], Just overpopulationTimer, [planetPos planet], "!!!", max (planet.maxPopulation-1) 0 )
+                (Nothing, True) -> ( []
+                                   , Just overpopulationTimer
+                                   , [planetPos planet]
+                                   , max (planet.maxPopulation-1) 0 )
                 (Just t, _) -> ( []
                                , Just (t - dt)
                                , []
-                               , "!!!"
                                , planet.maxPopulation
                                )
                 (op, False) -> ( potentialNewInhabitants
                                , op
                                , []
-                               , (toString (List.length planet.inhabitants))++"/"++toString planet.maxPopulation
                                , planet.maxPopulation
                                )
     in (Planet { planet
@@ -52,7 +56,6 @@ updatePlanet dt sticks (Planet planet) =
                                     then Nothing
                                     else Just t
                           op     -> op
-                  , textString = newTextString
                   , maxPopulation = newMaxPopulation
               },explodingPoints)
 
@@ -83,33 +86,33 @@ updateHelp msg model =
     Tick dt ->
       let
         (newSticks,points) = split model.sticks (updateStick dt model.planets)
-        (newPlanets,planetPoints) = List.map (updatePlanet dt model.sticks) model.planets |> List.unzip 
-        --newParticles = List.concatMap (createExplosion 1) (points ++ List.concat planetPoints)
+        (newPlanets,planetPoints) = List.map (updatePlanet dt model.sticks) model.planets |> List.unzip
         newStickParticles = List.map (createExplosion 1) points
         newPlanetParticles = List.map (createExplosion 10) (List.concat planetPoints)
         newParticles = List.concat (newStickParticles ++ newPlanetParticles)
 
-        pop = model.untilPop - dt <= 0
+        pop = model.untilPop - dt <= 0 && not gameOver
         newScore =
             if pop
             then model.score + model.deltaScore
             else model.score
 
-        gameOver = List.isEmpty newSticks
-                   && List.isEmpty
-                       (List.concatMap (\(Planet planet) ->
-                                            planet.inhabitants)
+        gameOver = (List.isEmpty newSticks
+                        && List.all (\(Planet planet) ->
+                                         List.isEmpty planet.inhabitants)
                             model.planets)
+                   || List.any (\(Planet planet) ->
+                                    planet.maxPopulation == 0)
+                       model.planets
 
       in { model
-            | particles = 
-                List.filterMap (updateParticle dt) model.particles ++ newParticles
-            , sticks=
+            | particles =
+               List.filterMap (updateParticle dt) model.particles
+               ++ newParticles
+            , sticks =
                 newSticks
             , planets =
                 newPlanets
-            --, score = model.score+model.deltaScore
-            --, deltaScore = List.length model.sticks + List.sum(List.map (\(Planet planet) -> List.length planet.inhabitants) model.planets)
             , deltaScore = List.sum(List.map (\(Planet planet) -> List.length planet.inhabitants) model.planets)
              , score = newScore
              , untilPop =
@@ -183,7 +186,7 @@ createExplosion numParticles pos =
                   |> Tuple.first
 
 
-generateParticle : Point -> Generator Particle 
+generateParticle : Point -> Generator Particle
 generateParticle genPos =
   let mkParticle vel =
       { pos = genPos
@@ -212,7 +215,7 @@ updateParticle dt particle =
 updateStick : Time -> List Planet -> Stick -> Either Stick Point
 updateStick dt planets stick =
 
-    let acc =(Vector.sum (List.map (gravity stick.pos) planets)) 
+    let acc =(Vector.sum (List.map (gravity stick.pos) planets))
               .+ gravity stick.pos ( Planet -- Gravity from the star in the middle
                 { radius        = 2
                 , mass          = 200
@@ -222,7 +225,6 @@ updateStick dt planets stick =
                 , maxPopulation = 0
                 , inhabitants   = []
                 , overpopulated = Nothing
-                , textString    = "Star"
                 }
                 )
 

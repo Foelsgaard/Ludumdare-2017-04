@@ -45,7 +45,6 @@ type Planet = Planet
     , inhabitants   : List Float
     , maxPopulation : Int
     , overpopulated : Maybe Time
-    , textString    : String
     }
 
 -- Constants

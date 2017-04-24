@@ -92,11 +92,30 @@ view model =
             ++ List.map drawStick model.sticks
             ++ List.map drawPlanet model.planets
             ++ List.map drawParticle model.particles
-            ++ [(Collage.text (Text.fromString "Current score: ") |> Collage.move scoreboardPos)]
-            ++ [(Collage.text (Text.fromString (toString model.score)) |> Collage.move (Vector.sub scoreboardPos scoreboardSpacing))]
-            ++ [(Collage.text (Text.fromString ("Every second you get:")) |> Collage.move (Vector.sub scoreboardPos (Vector.scale 2 scoreboardSpacing)))]
-            ++ [(Collage.text (Text.fromString ("+"++(toString model.deltaScore))) |> Collage.move (Vector.sub scoreboardPos (Vector.scale 3 scoreboardSpacing)))]
-            ++ [(Collage.text (Text.fromString ("from the inhabitants of your planets!")) |> Collage.move (Vector.sub scoreboardPos (Vector.scale 4 scoreboardSpacing)))]
+            ++ [(Collage.text (Text.fromString "Current score: ")
+                |> Collage.move scoreboardPos)]
+            ++ [(Collage.text (Text.fromString (toString model.score))
+                |> Collage.move
+                     (Vector.sub scoreboardPos scoreboardSpacing))]
+            ++ [(Collage.text (Text.fromString ("Every second you get:"))
+                |> Collage.move
+                     (Vector.sub scoreboardPos
+                          (Vector.scale 2 scoreboardSpacing)))]
+            ++ [(Collage.text
+                     (Text.fromString ("+"++(toString model.deltaScore)))
+                |> Collage.move
+                     (Vector.sub scoreboardPos
+                          (Vector.scale 3 scoreboardSpacing)))]
+            ++ [(Collage.text
+                     (Text.fromString
+                          ("from the inhabitants of your planets!"))
+                |> Collage.move (Vector.sub scoreboardPos
+                                     (Vector.scale 4 scoreboardSpacing)))]
+            ++ [(Collage.text
+                     (Text.fromString
+                          ("Don't let your planets get overpopulated!"))
+                |> Collage.move (Vector.sub scoreboardPos
+                                     (Vector.scale 5 scoreboardSpacing)))]
             ++ if model.gameOver
                then [ Text.fromString "Game Over"
                     |> Text.style
